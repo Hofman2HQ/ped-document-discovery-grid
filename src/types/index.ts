@@ -10,6 +10,7 @@ export interface Document {
   ped_search_country: string;
   ped_search_document_type: string;
   loaded_to_sfm: boolean;
+  searchedQuery?: string; // Add this field to track the query
 }
 
 export interface SearchFilters {
@@ -23,6 +24,7 @@ export interface SearchFilters {
   state: string;
   transactionId: string;
   sessionId: string;
+  searchedQuery: string; // Add this field to track the query
 }
 
 // Backend interfaces

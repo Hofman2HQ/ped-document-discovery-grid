@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +17,7 @@ import {
 } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { SearchFilters } from '@/types';
-import { CalendarIcon, Search, X, Key, Hash } from 'lucide-react';
+import { CalendarIcon, Search, X, Key, Hash, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { countryHasMultipleStates, getStatesForCountry } from '@/api/documents';
 
@@ -45,7 +44,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
     },
     state: '',
     transactionId: '',
-    sessionId: ''
+    sessionId: '',
+    searchedQuery: ''
   });
 
   const [availableStates, setAvailableStates] = useState<string[]>([]);
@@ -73,6 +73,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   const handleSearchTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters(prev => ({ ...prev, searchText: e.target.value }));
+  };
+
+  const handleSearchedQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilters(prev => ({ ...prev, searchedQuery: e.target.value }));
   };
 
   const handleCountryChange = (value: string) => {
@@ -117,7 +121,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
       },
       state: '',
       transactionId: '',
-      sessionId: ''
+      sessionId: '',
+      searchedQuery: ''
     });
     setShowStateFilter(false);
     onSearch({
@@ -130,7 +135,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
       },
       state: '',
       transactionId: '',
-      sessionId: ''
+      sessionId: '',
+      searchedQuery: ''
     });
   };
 
@@ -142,7 +148,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
     <div className="bg-card p-4 rounded-lg shadow-md mb-6">
       <h2 className="text-xl font-semibold mb-4">Search Documents</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        {/* Search Text */}
         <div className="space-y-2">
           <Label htmlFor="searchText">Search in Image URL</Label>
           <div className="relative">
@@ -157,7 +162,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
           </div>
         </div>
 
-        {/* Country Dropdown */}
         <div className="space-y-2">
           <Label htmlFor="country">Country</Label>
           <Select value={filters.country} onValueChange={handleCountryChange}>
@@ -175,7 +179,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
           </Select>
         </div>
 
-        {/* Document Type Dropdown */}
         <div className="space-y-2">
           <Label htmlFor="documentType">Document Type</Label>
           <Select value={filters.documentType} onValueChange={handleDocumentTypeChange}>
@@ -193,7 +196,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
           </Select>
         </div>
 
-        {/* State Dropdown - Conditionally rendered */}
         {showStateFilter && (
           <div className="space-y-2">
             <Label htmlFor="state">State</Label>
@@ -213,7 +215,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
           </div>
         )}
 
-        {/* Date Range */}
         <div className={`space-y-2 col-span-1 md:col-span-2 ${showStateFilter ? 'lg:col-span-2' : 'lg:col-span-1'}`}>
           <Label>Date Range</Label>
           <Popover>
@@ -255,7 +256,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
         </div>
       </div>
 
-      {/* Toggle button for advanced search */}
       <div className="flex justify-end mb-4">
         <Button 
           variant="outline" 
@@ -266,7 +266,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
         </Button>
       </div>
 
-      {/* Advanced search fields - conditionally rendered */}
       {showAdvancedSearch && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 border-t pt-4">
           <div className="space-y-2">
@@ -292,6 +291,20 @@ const SearchBar: React.FC<SearchBarProps> = ({
                 placeholder="Search by session ID..."
                 value={filters.sessionId}
                 onChange={handleSessionIdChange}
+                className="pl-8"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="searchedQuery">Searched Query</Label>
+            <div className="relative">
+              <FileText className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="searchedQuery"
+                placeholder="Search by query used..."
+                value={filters.searchedQuery}
+                onChange={handleSearchedQueryChange}
                 className="pl-8"
               />
             </div>

@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, FileText } from "lucide-react";
 import { Document, SearchFilters } from "@/types";
 import { 
   fetchDocuments, 
@@ -12,6 +13,7 @@ import SearchBar from "@/components/SearchBar";
 import DocumentGrid from "@/components/DocumentGrid";
 import DocumentModal from "@/components/DocumentModal";
 import EmptyState from "@/components/EmptyState";
+import { Badge } from "@/components/ui/badge";
 
 const Index = () => {
   const { toast } = useToast();
@@ -26,6 +28,7 @@ const Index = () => {
   
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeSearchedQuery, setActiveSearchedQuery] = useState<string>("");
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -68,9 +71,12 @@ const Index = () => {
         dateTo: filters.dateRange.to,
         state: filters.state === 'all' ? '' : filters.state,
         transactionId: filters.transactionId,
-        sessionId: filters.sessionId
+        sessionId: filters.sessionId,
+        searchedQuery: filters.searchedQuery
       });
+      
       setFilteredDocuments(filteredDocs);
+      setActiveSearchedQuery(filters.searchedQuery || "");
     } catch (err) {
       console.error("Error applying filters:", err);
       toast({
@@ -121,9 +127,18 @@ const Index = () => {
         ) : (
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">
-                Results ({filteredDocuments.length})
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-semibold">
+                  Results ({filteredDocuments.length})
+                </h2>
+                
+                {activeSearchedQuery && (
+                  <Badge className="flex items-center gap-1 bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1">
+                    <FileText className="h-3.5 w-3.5" />
+                    <span>Query: {activeSearchedQuery}</span>
+                  </Badge>
+                )}
+              </div>
             </div>
             <DocumentGrid 
               documents={filteredDocuments} 

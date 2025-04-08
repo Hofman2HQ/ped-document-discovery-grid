@@ -1,4 +1,3 @@
-
 import { Document } from '@/types';
 
 // Utility function to determine document type from image URL (simulating OCR)
@@ -444,6 +443,7 @@ export const fetchDocuments = async (filters?: {
   state?: string;
   transactionId?: string;
   sessionId?: string;
+  searchedQuery?: string;
 }): Promise<Document[]> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -499,6 +499,21 @@ export const fetchDocuments = async (filters?: {
         doc.sessionId.toString().includes(filters.sessionId)
       );
     }
+    
+    // Add filter for searched query
+    if (filters.searchedQuery) {
+      filteredDocs = filteredDocs.filter(doc =>
+        doc.searchedQuery && doc.searchedQuery.toLowerCase().includes(filters.searchedQuery!.toLowerCase())
+      );
+    }
+  }
+
+  // Add the searchedQuery to the results if it was provided
+  if (filters?.searchedQuery) {
+    filteredDocs = filteredDocs.map(doc => ({
+      ...doc,
+      searchedQuery: filters.searchedQuery
+    }));
   }
 
   return filteredDocs;
