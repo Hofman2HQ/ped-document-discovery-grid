@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Play, Plus, Edit, Trash2 } from 'lucide-react';
@@ -48,6 +47,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import EmptyState from '@/components/EmptyState';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type QueryFormData = {
   query: string;
@@ -65,13 +66,17 @@ const Queries = () => {
     }
   });
 
-  // Get all queries
-  const { data: queries = [], isLoading } = useQuery({
+  const { data: queries = [], isLoading, isError } = useQuery({
     queryKey: ['queries'],
-    queryFn: getAllQueries
+    queryFn: getAllQueries,
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
-  // Create query mutation
+  console.log("Queries data:", queries);
+  console.log("isLoading:", isLoading);
+  console.log("isError:", isError);
+
   const createMutation = useMutation({
     mutationFn: (data: string) => createQuery(data),
     onSuccess: () => {
@@ -92,7 +97,6 @@ const Queries = () => {
     }
   });
 
-  // Update query mutation
   const updateMutation = useMutation({
     mutationFn: ({ id, query }: { id: number; query: string }) => updateQuery(id, query),
     onSuccess: () => {
@@ -113,7 +117,6 @@ const Queries = () => {
     }
   });
 
-  // Delete query mutation
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteQuery(id),
     onSuccess: () => {
@@ -133,7 +136,6 @@ const Queries = () => {
     }
   });
 
-  // Execute query mutation
   const executeMutation = useMutation({
     mutationFn: (id: number) => executeQuery(id),
     onSuccess: (data) => {
@@ -179,16 +181,32 @@ const Queries = () => {
 
   const onSubmit = (data: QueryFormData) => {
     if (editingQuery) {
-      // Update existing query
       updateMutation.mutate({ id: editingQuery.id, query: data.query });
     } else {
-      // Create new query
       createMutation.mutate(data.query);
     }
   };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString();
+  };
+
+  const renderSkeletonRows = () => {
+    return Array(5).fill(0).map((_, index) => (
+      <TableRow key={`skeleton-${index}`}>
+        <TableCell><Skeleton className="h-4 w-8" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-64" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+        <TableCell>
+          <div className="flex space-x-2">
+            <Skeleton className="h-8 w-8 rounded-md" />
+            <Skeleton className="h-8 w-8 rounded-md" />
+            <Skeleton className="h-8 w-8 rounded-md" />
+          </div>
+        </TableCell>
+      </TableRow>
+    ));
   };
 
   return (
@@ -246,14 +264,26 @@ const Queries = () => {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-8">Loading queries...</div>
-      ) : queries.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-lg text-gray-500">No queries found</p>
-          <Button onClick={handleAddNew} className="mt-4">
-            Add Your First Query
-          </Button>
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID</TableHead>
+                <TableHead>Query</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead>Last Updated</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {renderSkeletonRows()}
+            </TableBody>
+          </Table>
         </div>
+      ) : isError ? (
+        <EmptyState message="There was an error loading queries. Please try again later." />
+      ) : queries.length === 0 ? (
+        <EmptyState message="No queries found. Add your first query to get started." />
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <Table>
