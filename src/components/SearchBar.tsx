@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { SearchFilters } from '@/types';
-import { CalendarIcon, Search, X, Key, Hash, FileText } from 'lucide-react';
+import { CalendarIcon, Search, X, Key, Hash, FileText, Calendar as CalendarIcon2, Fingerprint } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { countryHasMultipleStates, getStatesForCountry } from '@/api/documents';
 
@@ -45,7 +45,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
     state: '',
     transactionId: '',
     sessionId: '',
-    searchedQuery: ''
+    searchedQuery: '',
+    podId: '',
+    documentDate: ''
   });
 
   const [availableStates, setAvailableStates] = useState<string[]>([]);
@@ -77,6 +79,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   const handleSearchedQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters(prev => ({ ...prev, searchedQuery: e.target.value }));
+  };
+
+  const handlePodIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilters(prev => ({ ...prev, podId: e.target.value }));
+  };
+
+  const handleDocumentDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilters(prev => ({ ...prev, documentDate: e.target.value }));
   };
 
   const handleCountryChange = (value: string) => {
@@ -122,7 +132,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
       state: '',
       transactionId: '',
       sessionId: '',
-      searchedQuery: ''
+      searchedQuery: '',
+      podId: '',
+      documentDate: ''
     });
     setShowStateFilter(false);
     onSearch({
@@ -136,7 +148,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
       state: '',
       transactionId: '',
       sessionId: '',
-      searchedQuery: ''
+      searchedQuery: '',
+      podId: '',
+      documentDate: ''
     });
   };
 
@@ -157,6 +171,20 @@ const SearchBar: React.FC<SearchBarProps> = ({
               placeholder="Search in image URLs..."
               value={filters.searchText}
               onChange={handleSearchTextChange}
+              className="pl-8"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="searchedQuery">Searched Query</Label>
+          <div className="relative">
+            <FileText className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              id="searchedQuery"
+              placeholder="Search by query used..."
+              value={filters.searchedQuery}
+              onChange={handleSearchedQueryChange}
               className="pl-8"
             />
           </div>
@@ -297,15 +325,30 @@ const SearchBar: React.FC<SearchBarProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="searchedQuery">Searched Query</Label>
+            <Label htmlFor="podId">Pod ID</Label>
             <div className="relative">
-              <FileText className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Fingerprint className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                id="searchedQuery"
-                placeholder="Search by query used..."
-                value={filters.searchedQuery}
-                onChange={handleSearchedQueryChange}
+                id="podId"
+                placeholder="Search by Pod ID..."
+                value={filters.podId}
+                onChange={handlePodIdChange}
                 className="pl-8"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="documentDate">Document Date</Label>
+            <div className="relative">
+              <CalendarIcon2 className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="documentDate"
+                placeholder="Search by document date..."
+                value={filters.documentDate}
+                onChange={handleDocumentDateChange}
+                className="pl-8"
+                type="date"
               />
             </div>
           </div>

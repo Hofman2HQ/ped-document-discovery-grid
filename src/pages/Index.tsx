@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, FileText } from "lucide-react";
@@ -29,6 +28,7 @@ const Index = () => {
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeSearchedQuery, setActiveSearchedQuery] = useState<string>("");
+  const [activePodId, setActivePodId] = useState<string>("");
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -38,7 +38,6 @@ const Index = () => {
         setDocuments(docs);
         setFilteredDocuments(docs);
         
-        // Load filter options
         setCountries(getUniqueCountries());
         setDocumentTypes(getUniqueDocumentTypes());
         setStates(getUniqueStates());
@@ -72,11 +71,14 @@ const Index = () => {
         state: filters.state === 'all' ? '' : filters.state,
         transactionId: filters.transactionId,
         sessionId: filters.sessionId,
-        searchedQuery: filters.searchedQuery
+        searchedQuery: filters.searchedQuery,
+        podId: filters.podId,
+        documentDate: filters.documentDate
       });
       
       setFilteredDocuments(filteredDocs);
       setActiveSearchedQuery(filters.searchedQuery || "");
+      setActivePodId(filters.podId || "");
     } catch (err) {
       console.error("Error applying filters:", err);
       toast({
@@ -127,7 +129,7 @@ const Index = () => {
         ) : (
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-xl font-semibold">
                   Results ({filteredDocuments.length})
                 </h2>
@@ -136,6 +138,12 @@ const Index = () => {
                   <Badge className="flex items-center gap-1 bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1">
                     <FileText className="h-3.5 w-3.5" />
                     <span>Query: {activeSearchedQuery}</span>
+                  </Badge>
+                )}
+                
+                {activePodId && (
+                  <Badge className="flex items-center gap-1 bg-secondary/10 text-secondary hover:bg-secondary/20 px-3 py-1">
+                    <span>Pod ID: {activePodId}</span>
                   </Badge>
                 )}
               </div>
