@@ -51,7 +51,7 @@ const mockDocuments: Document[] = [
     country: "United States",
     document_type: "Passport",
     created_at: "2025-01-15T08:30:00Z",
-    state: "California",
+    state: "Seatle",
     ped_search_country: "US",
     ped_search_document_type: "PASS",
     loaded_to_sfm: true
