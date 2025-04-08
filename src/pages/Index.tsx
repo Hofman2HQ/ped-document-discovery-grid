@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, FileText, CheckCircle, XCircle } from "lucide-react";
@@ -64,7 +63,6 @@ const Index = () => {
   const handleSearch = async (filters: SearchFilters) => {
     try {
       setLoading(true);
-      // Update this call to include the podId and remove documentDate
       const filteredDocs = await fetchDocuments({
         searchText: filters.searchText,
         country: filters.country === 'all' ? '' : filters.country,

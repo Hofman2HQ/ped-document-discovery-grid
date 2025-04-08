@@ -444,6 +444,8 @@ export const fetchDocuments = async (filters?: {
   transactionId?: string;
   sessionId?: string;
   searchedQuery?: string;
+  podId?: string;
+  sfmStatus?: 'all' | 'yes' | 'no';
 }): Promise<Document[]> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -506,6 +508,20 @@ export const fetchDocuments = async (filters?: {
         doc.searchedQuery && doc.searchedQuery.toLowerCase().includes(filters.searchedQuery!.toLowerCase())
       );
     }
+
+    // Add filter for Pod ID
+    if (filters.podId) {
+      filteredDocs = filteredDocs.filter(doc =>
+        doc.podId && doc.podId.toLowerCase().includes(filters.podId.toLowerCase())
+      );
+    }
+
+    // Add filter for SFM status
+    if (filters.sfmStatus && filters.sfmStatus !== 'all') {
+      filteredDocs = filteredDocs.filter(doc =>
+        filters.sfmStatus === 'yes' ? doc.loaded_to_sfm : !doc.loaded_to_sfm
+      );
+    }
   }
 
   // Add the searchedQuery to the results if it was provided
@@ -513,6 +529,14 @@ export const fetchDocuments = async (filters?: {
     filteredDocs = filteredDocs.map(doc => ({
       ...doc,
       searchedQuery: filters.searchedQuery
+    }));
+  }
+
+  // Add the podId to the results if it was provided
+  if (filters?.podId) {
+    filteredDocs = filteredDocs.map(doc => ({
+      ...doc,
+      podId: filters.podId
     }));
   }
 
