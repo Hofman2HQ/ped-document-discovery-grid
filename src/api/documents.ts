@@ -1,7 +1,47 @@
-
 import { Document } from '@/types';
 
-// Mock data for document examples - representing sensitive documents found online
+// Utility function to determine document type from image URL (simulating OCR)
+const determineDocumentType = (imageUrl: string): {type: string, code: string} => {
+  const url = imageUrl.toLowerCase();
+  
+  if (url.includes('passport') || url.includes('visa')) {
+    return { type: 'Passport', code: 'PASS' };
+  } else if (url.includes('license') || url.includes('driving') || 
+            url.includes('permis') || url.includes('conduire')) {
+    return { type: 'Driving License', code: 'DL' };
+  } else {
+    return { type: 'IDs', code: 'ID' };
+  }
+};
+
+// Utility function to determine country from image URL (simulating OCR)
+const determineCountry = (imageUrl: string): {country: string, code: string} => {
+  const url = imageUrl.toLowerCase();
+  
+  if (url.includes('madagascar') || url.includes('malagasy')) {
+    return { country: 'Madagascar', code: 'MG' };
+  } else if (url.includes('uk') || url.includes('united-kingdom')) {
+    return { country: 'United Kingdom', code: 'UK' };
+  } else if (url.includes('us') || url.includes('united-states')) {
+    return { country: 'United States', code: 'US' };
+  } else if (url.includes('cameroon')) {
+    return { country: 'Cameroon', code: 'CM' };
+  } else if (url.includes('malta')) {
+    return { country: 'Malta', code: 'MT' };
+  } else if (url.includes('russia')) {
+    return { country: 'Russia', code: 'RU' };
+  } else if (url.includes('mauritius') || url.includes('mauricienne')) {
+    return { country: 'Mauritius', code: 'MU' };
+  } else if (url.includes('semlex')) {
+    return { country: 'Democratic Republic of Congo', code: 'CD' };
+  } else {
+    // Process other countries based on image patterns
+    // For demo purposes, default to Madagascar
+    return { country: 'Madagascar', code: 'MG' };
+  }
+};
+
+// Mock data for document examples - representing sensitive documents found online with OCR-derived data
 const mockDocuments: Document[] = [
   {
     transactionId: "doc-1",
@@ -45,11 +85,11 @@ const mockDocuments: Document[] = [
     transactionId: "doc-4",
     image_url: "http://www.madagaszkar.hu/images/inter-license.jpg",
     page_url: "https://data-breach.com/personal-info",
-    country: "Australia",
+    country: "Madagascar",
     document_type: "Driving License",
     created_at: "2025-02-18T09:15:00Z",
-    state: "New South Wales",
-    ped_search_country: "AU",
+    state: "",
+    ped_search_country: "MG",
     ped_search_document_type: "DL",
     loaded_to_sfm: false
   },
@@ -57,11 +97,11 @@ const mockDocuments: Document[] = [
     transactionId: "doc-5",
     image_url: "http://images6.fanpop.com/image/photos/34600000/Corpse-party-I-D-card-skipper-penguins-of-madagascar-34698561-790-600.jpg",
     page_url: "https://insecure-site.org/documents",
-    country: "Germany",
+    country: "Madagascar",
     document_type: "IDs",
     created_at: "2025-01-27T16:40:00Z",
     state: "",
-    ped_search_country: "DE",
+    ped_search_country: "MG",
     ped_search_document_type: "ID",
     loaded_to_sfm: true
   },
@@ -69,11 +109,11 @@ const mockDocuments: Document[] = [
     transactionId: "doc-6",
     image_url: "http://www.madagaszkar.hu/images/passport.png",
     page_url: "https://poor-security.com/files",
-    country: "France",
+    country: "Madagascar",
     document_type: "Passport",
     created_at: "2025-03-05T10:20:00Z",
     state: "",
-    ped_search_country: "FR",
+    ped_search_country: "MG",
     ped_search_document_type: "PASS",
     loaded_to_sfm: false
   },
@@ -81,11 +121,11 @@ const mockDocuments: Document[] = [
     transactionId: "doc-7",
     image_url: "https://www.thalesgroup.com/sites/default/files/gemalto/biometric-ID-card-cameroon-renditionid-1.jpg",
     page_url: "https://exposed-api.net/customer-data",
-    country: "Japan",
+    country: "Cameroon",
     document_type: "IDs",
     created_at: "2025-02-10T13:50:00Z",
     state: "",
-    ped_search_country: "JP",
+    ped_search_country: "CM",
     ped_search_document_type: "ID",
     loaded_to_sfm: true
   },
@@ -93,11 +133,11 @@ const mockDocuments: Document[] = [
     transactionId: "doc-8",
     image_url: "http://images6.fanpop.com/image/photos/34600000/Corpse-party-I-D-card-private-penguins-of-madagascar-34698600-790-600.jpg",
     page_url: "https://misconfigured-server.com/private",
-    country: "Brazil",
+    country: "Madagascar",
     document_type: "IDs",
     created_at: "2025-01-09T09:00:00Z",
-    state: "São Paulo",
-    ped_search_country: "BR",
+    state: "",
+    ped_search_country: "MG",
     ped_search_document_type: "ID",
     loaded_to_sfm: false
   },
@@ -105,11 +145,11 @@ const mockDocuments: Document[] = [
     transactionId: "doc-9",
     image_url: "http://www.madagaszkar.hu/images/permis%20de%20conduite-1.png",
     page_url: "https://leaked-database.org/records",
-    country: "India",
+    country: "Madagascar",
     document_type: "Driving License",
     created_at: "2025-03-22T15:30:00Z",
-    state: "Maharashtra",
-    ped_search_country: "IN",
+    state: "",
+    ped_search_country: "MG",
     ped_search_document_type: "DL",
     loaded_to_sfm: true
   },
@@ -117,11 +157,11 @@ const mockDocuments: Document[] = [
     transactionId: "doc-10",
     image_url: "https://www.semlex.com/wp-content/uploads/2015/02/Cartes_Permis-de-conduire_Semlex.jpg",
     page_url: "https://public-folder.cloud/documents",
-    country: "South Africa",
+    country: "Democratic Republic of Congo",
     document_type: "Driving License",
     created_at: "2025-02-28T11:10:00Z",
     state: "",
-    ped_search_country: "ZA",
+    ped_search_country: "CD",
     ped_search_document_type: "DL",
     loaded_to_sfm: false
   },
@@ -129,11 +169,11 @@ const mockDocuments: Document[] = [
     transactionId: "doc-11",
     image_url: "https://www.expat-quotes.com/images/articles/Malta-P-ID%20Card.jpg",
     page_url: "https://unsecured-storage.net/personal",
-    country: "Mexico",
+    country: "Malta",
     document_type: "IDs",
     created_at: "2025-01-20T14:15:00Z",
-    state: "Jalisco",
-    ped_search_country: "MX",
+    state: "",
+    ped_search_country: "MT",
     ped_search_document_type: "ID",
     loaded_to_sfm: true
   },
@@ -141,11 +181,11 @@ const mockDocuments: Document[] = [
     transactionId: "doc-12",
     image_url: "https://visafoto.com/img/docs/mg_passport_40x40_mm.jpg",
     page_url: "https://open-bucket.storage/sensitive",
-    country: "Spain",
+    country: "Madagascar",
     document_type: "Passport",
     created_at: "2025-03-18T08:45:00Z",
     state: "",
-    ped_search_country: "ES",
+    ped_search_country: "MG",
     ped_search_document_type: "PASS",
     loaded_to_sfm: false
   },
@@ -153,11 +193,11 @@ const mockDocuments: Document[] = [
     transactionId: "doc-13",
     image_url: "https://farm3.static.flickr.com/2928/14230720722_4945db1d74.jpg",
     page_url: "https://data-exposure.com/documents",
-    country: "Canada",
+    country: "Madagascar",
     document_type: "IDs",
     created_at: "2025-01-25T10:15:00Z",
-    state: "Ontario",
-    ped_search_country: "CA",
+    state: "",
+    ped_search_country: "MG",
     ped_search_document_type: "ID",
     loaded_to_sfm: true
   },
@@ -165,11 +205,11 @@ const mockDocuments: Document[] = [
     transactionId: "doc-14",
     image_url: "https://optics.org/objects/news/thumb/9/3/33/Gemutopiaidcard03M.jpg",
     page_url: "https://leaked-data.org/ids",
-    country: "Italy",
+    country: "Madagascar",
     document_type: "IDs",
     created_at: "2025-02-14T13:25:00Z",
     state: "",
-    ped_search_country: "IT",
+    ped_search_country: "MG",
     ped_search_document_type: "ID",
     loaded_to_sfm: false
   },
@@ -189,11 +229,11 @@ const mockDocuments: Document[] = [
     transactionId: "doc-16",
     image_url: "https://m.media-amazon.com/images/I/71nGPF+3DXL.jpg",
     page_url: "https://unprotected-data.com/licenses",
-    country: "Russia",
+    country: "United States",
     document_type: "Driving License",
     created_at: "2025-01-30T15:50:00Z",
-    state: "",
-    ped_search_country: "RU",
+    state: "New York",
+    ped_search_country: "US",
     ped_search_document_type: "DL",
     loaded_to_sfm: false
   },
@@ -213,11 +253,11 @@ const mockDocuments: Document[] = [
     transactionId: "doc-18",
     image_url: "https://www.thalesgroup.com/sites/default/files/gemalto/national-id-renditionid-1.jpg",
     page_url: "https://breached-database.org/documents",
-    country: "Sweden",
+    country: "Madagascar",
     document_type: "IDs",
     created_at: "2025-03-15T14:10:00Z",
     state: "",
-    ped_search_country: "SE",
+    ped_search_country: "MG",
     ped_search_document_type: "ID",
     loaded_to_sfm: false
   },
@@ -225,11 +265,11 @@ const mockDocuments: Document[] = [
     transactionId: "doc-19",
     image_url: "https://d1sr9z1pdl3mb7.cloudfront.net/wp-content/uploads/2020/04/28164335/Grow-digital-ID-system-for-emergency-and-reap-long-term-rewards-World-Bank-says.jpg",
     page_url: "https://exposed-credentials.com/ids",
-    country: "Kenya",
+    country: "Madagascar",
     document_type: "IDs",
     created_at: "2025-01-12T12:20:00Z",
     state: "",
-    ped_search_country: "KE",
+    ped_search_country: "MG",
     ped_search_document_type: "ID",
     loaded_to_sfm: true
   },
@@ -295,9 +335,32 @@ const mockDocuments: Document[] = [
   }
 ];
 
+// Function to process mock data with OCR simulation
+const processedMockDocuments = mockDocuments.map(doc => {
+  // Keep existing values if already defined properly
+  if (doc.document_type && doc.country && doc.ped_search_document_type && doc.ped_search_country) {
+    return doc;
+  }
+  
+  // Otherwise use our OCR simulation
+  const docType = determineDocumentType(doc.image_url);
+  const country = determineCountry(doc.image_url);
+  
+  return {
+    ...doc,
+    document_type: docType.type,
+    ped_search_document_type: docType.code,
+    country: country.country,
+    ped_search_country: country.code
+  };
+});
+
+// Use the processed documents instead of the original mock data
+const updatedMockDocuments = processedMockDocuments;
+
 // Return all unique countries for filtering
 export const getUniqueCountries = (): string[] => {
-  const countries = mockDocuments.map(doc => doc.country);
+  const countries = updatedMockDocuments.map(doc => doc.country);
   return [...new Set(countries)];
 };
 
@@ -309,7 +372,7 @@ export const getUniqueDocumentTypes = (): string[] => {
 
 // Return all unique states for filtering
 export const getUniqueStates = (): string[] => {
-  const states = mockDocuments.map(doc => doc.state).filter(state => state !== "");
+  const states = updatedMockDocuments.map(doc => doc.state).filter(state => state !== "");
   return [...new Set(states)];
 };
 
@@ -317,7 +380,7 @@ export const getUniqueStates = (): string[] => {
 export const getStatesForCountry = (country: string): string[] => {
   if (!country || country === 'all') return [];
   
-  const states = mockDocuments
+  const states = updatedMockDocuments
     .filter(doc => doc.country === country && doc.state !== "")
     .map(doc => doc.state);
   
@@ -346,7 +409,7 @@ export const fetchDocuments = async (filters?: {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 500));
 
-  let filteredDocs = [...mockDocuments];
+  let filteredDocs = [...updatedMockDocuments];
 
   // Apply filters if provided
   if (filters) {
@@ -400,4 +463,27 @@ export const fetchDocuments = async (filters?: {
   }
 
   return filteredDocs;
+};
+
+// Function to analyze an image URL and return document details (for frontend use)
+export const analyzeDocumentImage = async (imageUrl: string): Promise<{
+  document_type: string;
+  country: string;
+  ped_search_document_type: string;
+  ped_search_country: string;
+}> => {
+  try {
+    const docType = determineDocumentType(imageUrl);
+    const country = determineCountry(imageUrl);
+    
+    return {
+      document_type: docType.type,
+      ped_search_document_type: docType.code,
+      country: country.country,
+      ped_search_country: country.code
+    };
+  } catch (error) {
+    console.error('Error analyzing document image:', error);
+    throw new Error('Failed to analyze document image');
+  }
 };
