@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, Database } from 'lucide-react';
+import { Home, Database, Play } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const location = useLocation();
@@ -34,6 +34,17 @@ const Navbar: React.FC = () => {
             >
               <Database className="mr-2 h-4 w-4" />
               Queries
+            </Button>
+          </Link>
+
+          <Link to="/executions">
+            <Button 
+              variant={location.pathname === '/executions' ? 'default' : 'outline'}
+              size="sm"
+              className="flex items-center"
+            >
+              <Play className="mr-2 h-4 w-4" />
+              Executions
             </Button>
           </Link>
         </div>

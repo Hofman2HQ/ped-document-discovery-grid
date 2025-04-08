@@ -1,3 +1,4 @@
+
 export interface Document {
   transactionId: string;
   sessionId?: number;
@@ -61,4 +62,14 @@ export interface PedCollectorQuery {
   query: string;
   insertDatetime: string;
   updateDatetime: string;
+}
+
+export interface Execution {
+  id: number;
+  queryId: number;
+  startDate: Date;
+  endDate: Date | null;
+  isCompleted: boolean;
+  foundDocuments: number;
+  query?: string;
 }

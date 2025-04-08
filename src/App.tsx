@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Index from './pages/Index';
 import NotFound from './pages/NotFound';
 import Queries from './pages/Queries';
+import Executions from './pages/Executions';
 import Navbar from './components/Navbar';
 
 const queryClient = new QueryClient();
@@ -18,6 +19,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/queries" element={<Queries />} />
+            <Route path="/executions" element={<Executions />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>
