@@ -1,4 +1,3 @@
-
 export interface Document {
   transactionId: string;
   sessionId?: number;
@@ -29,6 +28,7 @@ export interface SearchFilters {
   searchedQuery: string;
   podId: string;
   documentDate: string;
+  sfmStatus: 'all' | 'yes' | 'no';
 }
 
 export interface PedDetails {

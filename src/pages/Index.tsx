@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { Loader2, FileText } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, FileText, CheckCircle, XCircle } from "lucide-react";
 import { Document, SearchFilters } from "@/types";
 import { 
   fetchDocuments, 
@@ -29,6 +30,7 @@ const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeSearchedQuery, setActiveSearchedQuery] = useState<string>("");
   const [activePodId, setActivePodId] = useState<string>("");
+  const [activeSfmStatus, setActiveSfmStatus] = useState<string>("");
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -73,12 +75,14 @@ const Index = () => {
         sessionId: filters.sessionId,
         searchedQuery: filters.searchedQuery,
         podId: filters.podId,
-        documentDate: filters.documentDate
+        documentDate: filters.documentDate,
+        sfmStatus: filters.sfmStatus
       });
       
       setFilteredDocuments(filteredDocs);
       setActiveSearchedQuery(filters.searchedQuery || "");
       setActivePodId(filters.podId || "");
+      setActiveSfmStatus(filters.sfmStatus !== 'all' ? filters.sfmStatus : "");
     } catch (err) {
       console.error("Error applying filters:", err);
       toast({
@@ -144,6 +148,22 @@ const Index = () => {
                 {activePodId && (
                   <Badge className="flex items-center gap-1 bg-secondary/10 text-secondary hover:bg-secondary/20 px-3 py-1">
                     <span>Pod ID: {activePodId}</span>
+                  </Badge>
+                )}
+
+                {activeSfmStatus && (
+                  <Badge className="flex items-center gap-1 bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1">
+                    {activeSfmStatus === 'yes' ? (
+                      <>
+                        <CheckCircle className="h-3.5 w-3.5 mr-1" />
+                        <span>In SFM</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="h-3.5 w-3.5 mr-1" />
+                        <span>Not in SFM</span>
+                      </>
+                    )}
                   </Badge>
                 )}
               </div>

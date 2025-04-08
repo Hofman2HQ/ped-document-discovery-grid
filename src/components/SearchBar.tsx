@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,9 +16,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { format } from 'date-fns';
 import { SearchFilters } from '@/types';
-import { CalendarIcon, Search, X, Key, Hash, FileText, Calendar as CalendarIcon2, Fingerprint } from 'lucide-react';
+import { CalendarIcon, Search, X, Key, Hash, FileText, Calendar as CalendarIcon2, Fingerprint, HelpCircle, Database } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { countryHasMultipleStates, getStatesForCountry } from '@/api/documents';
 
@@ -47,7 +54,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
     sessionId: '',
     searchedQuery: '',
     podId: '',
-    documentDate: ''
+    documentDate: '',
+    sfmStatus: 'all'
   });
 
   const [availableStates, setAvailableStates] = useState<string[]>([]);
@@ -101,6 +109,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
     setFilters(prev => ({ ...prev, state: value }));
   };
 
+  const handleSfmStatusChange = (value: string) => {
+    setFilters(prev => ({ 
+      ...prev, 
+      sfmStatus: value as 'all' | 'yes' | 'no' 
+    }));
+  };
+
   const handleTransactionIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters(prev => ({ ...prev, transactionId: e.target.value }));
   };
@@ -134,7 +149,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
       sessionId: '',
       searchedQuery: '',
       podId: '',
-      documentDate: ''
+      documentDate: '',
+      sfmStatus: 'all'
     });
     setShowStateFilter(false);
     onSearch({
@@ -150,7 +166,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
       sessionId: '',
       searchedQuery: '',
       podId: '',
-      documentDate: ''
+      documentDate: '',
+      sfmStatus: 'all'
     });
   };
 
@@ -243,7 +260,36 @@ const SearchBar: React.FC<SearchBarProps> = ({
           </div>
         )}
 
-        <div className={`space-y-2 col-span-1 md:col-span-2 ${showStateFilter ? 'lg:col-span-2' : 'lg:col-span-1'}`}>
+        <div className="space-y-2">
+          <div className="flex items-center">
+            <Label htmlFor="sfmStatus">SFM Status</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" className="p-0 h-auto ml-1">
+                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Filter documents that have been added to Secure File Management system</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <Select value={filters.sfmStatus} onValueChange={handleSfmStatusChange}>
+            <SelectTrigger id="sfmStatus" className="flex items-center">
+              <Database className="mr-2 h-4 w-4 text-muted-foreground" />
+              <SelectValue placeholder="All Documents" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Documents</SelectItem>
+              <SelectItem value="yes">Added to SFM</SelectItem>
+              <SelectItem value="no">Not in SFM</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className={`space-y-2 col-span-1 md:col-span-2 ${showStateFilter ? 'lg:col-span-1' : 'lg:col-span-1'}`}>
           <Label>Date Range</Label>
           <Popover>
             <PopoverTrigger asChild>
