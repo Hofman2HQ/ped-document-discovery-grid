@@ -6,6 +6,9 @@ const pedDetailsController = require('../controllers/pedDetailsController');
 // GET all PED details
 router.get('/', pedDetailsController.getAllPedDetails);
 
+// GET states by country
+router.get('/states/:country', pedDetailsController.getStatesByCountry);
+
 // GET PED details by transaction ID
 router.get('/transaction/:transactionId', pedDetailsController.getPedDetailsByTransactionId);
 

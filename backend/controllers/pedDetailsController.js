@@ -4,8 +4,28 @@ const { pool, sql } = require('../config/db');
 // Get all PED details
 exports.getAllPedDetails = async (req, res) => {
   try {
+    const { country, state } = req.query;
+    
     await pool.connect();
-    const result = await pool.request().query('SELECT * FROM ped_details');
+    let query = 'SELECT * FROM ped_details WHERE 1=1';
+    const inputs = [];
+    
+    if (country) {
+      query += ' AND country = @country';
+      inputs.push({ name: 'country', type: sql.VarChar(50), value: country });
+    }
+    
+    if (state) {
+      query += ' AND state = @state';
+      inputs.push({ name: 'state', type: sql.VarChar(50), value: state });
+    }
+    
+    const request = pool.request();
+    inputs.forEach(input => {
+      request.input(input.name, input.type, input.value);
+    });
+    
+    const result = await request.query(query);
     res.status(200).json(result.recordset);
   } catch (error) {
     console.error('Error fetching PED details:', error);
@@ -52,6 +72,24 @@ exports.getPedDetailsByTransactionId = async (req, res) => {
   } catch (error) {
     console.error('Error fetching PED details by transaction ID:', error);
     res.status(500).json({ message: 'Error fetching PED details', error: error.message });
+  }
+};
+
+// Get states by country
+exports.getStatesByCountry = async (req, res) => {
+  try {
+    const { country } = req.params;
+    
+    await pool.connect();
+    const result = await pool.request()
+      .input('country', sql.VarChar(50), country)
+      .query('SELECT DISTINCT state FROM ped_details WHERE country = @country AND state IS NOT NULL AND state <> \'\'');
+    
+    const states = result.recordset.map(record => record.state);
+    res.status(200).json(states);
+  } catch (error) {
+    console.error('Error fetching states by country:', error);
+    res.status(500).json({ message: 'Error fetching states', error: error.message });
   }
 };
 

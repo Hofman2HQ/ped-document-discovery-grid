@@ -1,3 +1,4 @@
+
 import { Document } from '@/types';
 
 // Utility function to determine document type from image URL (simulating OCR)
@@ -51,7 +52,7 @@ const mockDocuments: Document[] = [
     country: "United States",
     document_type: "Passport",
     created_at: "2025-01-15T08:30:00Z",
-    state: "Seatle",
+    state: "Washington",
     ped_search_country: "US",
     ped_search_document_type: "PASS",
     loaded_to_sfm: true
@@ -238,6 +239,30 @@ const mockDocuments: Document[] = [
     loaded_to_sfm: false
   },
   {
+    transactionId: "doc-25",
+    image_url: "https://m.media-amazon.com/images/I/71nGPF+3DXL.jpg",
+    page_url: "https://unprotected-data.com/licenses",
+    country: "United States",
+    document_type: "Driving License",
+    created_at: "2025-01-30T15:50:00Z",
+    state: "California",
+    ped_search_country: "US",
+    ped_search_document_type: "DL",
+    loaded_to_sfm: false
+  },
+  {
+    transactionId: "doc-26",
+    image_url: "https://m.media-amazon.com/images/I/71nGPF+3DXL.jpg",
+    page_url: "https://unprotected-data.com/licenses",
+    country: "United States",
+    document_type: "Driving License",
+    created_at: "2025-01-30T15:50:00Z",
+    state: "Texas",
+    ped_search_country: "US",
+    ped_search_document_type: "DL",
+    loaded_to_sfm: false
+  },
+  {
     transactionId: "doc-17",
     image_url: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Document_of_the_Deputy_of_the_Russian_Parliament_%286_calling%29.jpeg/640px-Document_of_the_Deputy_of_the_Russian_Parliament_%286_calling%29.jpeg",
     page_url: "https://data-dump.net/personal-documents",
@@ -245,6 +270,18 @@ const mockDocuments: Document[] = [
     document_type: "IDs",
     created_at: "2025-02-22T11:30:00Z",
     state: "Moscow",
+    ped_search_country: "RU",
+    ped_search_document_type: "ID",
+    loaded_to_sfm: true
+  },
+  {
+    transactionId: "doc-27",
+    image_url: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Document_of_the_Deputy_of_the_Russian_Parliament_%286_calling%29.jpeg/640px-Document_of_the_Deputy_of_the_Russian_Parliament_%286_calling%29.jpeg",
+    page_url: "https://data-dump.net/personal-documents",
+    country: "Russia",
+    document_type: "IDs",
+    created_at: "2025-02-22T11:30:00Z",
+    state: "Saint Petersburg",
     ped_search_country: "RU",
     ped_search_document_type: "ID",
     loaded_to_sfm: true
@@ -372,7 +409,9 @@ export const getUniqueDocumentTypes = (): string[] => {
 
 // Return all unique states for filtering
 export const getUniqueStates = (): string[] => {
-  const states = updatedMockDocuments.map(doc => doc.state).filter(state => state !== "");
+  const states = updatedMockDocuments
+    .map(doc => doc.state)
+    .filter(state => state !== "");
   return [...new Set(states)];
 };
 

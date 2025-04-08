@@ -86,6 +86,13 @@ BEGIN
 END
 GO
 
+-- Add index for state
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'idx_ped_details_state')
+BEGIN
+  CREATE INDEX idx_ped_details_state ON ped_details(state);
+END
+GO
+
 -- Create relationships via foreign keys
 -- Note: In a production environment, you might want to add foreign key constraints
 -- between transaction_id fields across tables to ensure data integrity
