@@ -12,8 +12,6 @@ import SearchBar from "@/components/SearchBar";
 import DocumentGrid from "@/components/DocumentGrid";
 import DocumentModal from "@/components/DocumentModal";
 import EmptyState from "@/components/EmptyState";
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const { toast } = useToast();
@@ -98,11 +96,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container py-8 mx-auto">
-        <div className="flex justify-between items-center mb-6">
+        <div className="mb-6">
           <h1 className="text-4xl font-bold">Publicly Exposed Documents</h1>
-          <Link to="/queries">
-            <Button variant="outline">Manage Queries</Button>
-          </Link>
         </div>
         
         <SearchBar 
