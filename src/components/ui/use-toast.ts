@@ -1,5 +1,5 @@
 
-import { useToast as originalUseToast, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 export { toast };
 
@@ -13,8 +13,8 @@ export const useToast = () => {
       info: (content: string) => toast.info(content),
       warning: (content: string) => toast.warning(content),
     },
-    // For compatibility with any code that uses the object form
-    toast: (options: { title?: string; description?: string; variant?: "default" | "destructive" }) => {
+    // We need to overload the function to handle both object form and direct calls
+    handleToast: (options: { title?: string; description?: string; variant?: "default" | "destructive" }) => {
       if (options.variant === "destructive") {
         return toast.error(options.description || options.title);
       }
