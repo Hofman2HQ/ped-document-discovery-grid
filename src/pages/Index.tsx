@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
@@ -13,6 +12,8 @@ import SearchBar from "@/components/SearchBar";
 import DocumentGrid from "@/components/DocumentGrid";
 import DocumentModal from "@/components/DocumentModal";
 import EmptyState from "@/components/EmptyState";
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const { toast } = useToast();
@@ -95,51 +96,53 @@ const Index = () => {
   };
 
   return (
-    <div className="container mx-auto py-6 px-4">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Publicly Exposed Documents</h1>
-        <p className="text-muted-foreground">
-          Browse and search sensitive documents found exposed across the web
-        </p>
-      </header>
-
-      <SearchBar 
-        countries={countries} 
-        documentTypes={documentTypes}
-        states={states}
-        onSearch={handleSearch} 
-      />
-
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="ml-2">Loading documents...</span>
+    <div className="min-h-screen bg-background">
+      <div className="container py-8 mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-4xl font-bold">Publicly Exposed Documents</h1>
+          <Link to="/queries">
+            <Button variant="outline">Manage Queries</Button>
+          </Link>
         </div>
-      ) : error ? (
-        <div className="text-destructive text-center p-4">
-          {error}
-        </div>
-      ) : filteredDocuments.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">
-              Results ({filteredDocuments.length})
-            </h2>
+        
+        <SearchBar 
+          countries={countries} 
+          documentTypes={documentTypes}
+          states={states}
+          onSearch={handleSearch} 
+        />
+
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2">Loading documents...</span>
           </div>
-          <DocumentGrid 
-            documents={filteredDocuments} 
-            onDocumentClick={handleDocumentClick} 
-          />
-        </div>
-      )}
+        ) : error ? (
+          <div className="text-destructive text-center p-4">
+            {error}
+          </div>
+        ) : filteredDocuments.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">
+                Results ({filteredDocuments.length})
+              </h2>
+            </div>
+            <DocumentGrid 
+              documents={filteredDocuments} 
+              onDocumentClick={handleDocumentClick} 
+            />
+          </div>
+        )}
 
-      <DocumentModal 
-        document={selectedDocument} 
-        isOpen={isModalOpen} 
-        onClose={closeModal} 
-      />
+        <DocumentModal 
+          document={selectedDocument} 
+          isOpen={isModalOpen} 
+          onClose={closeModal} 
+        />
+      </div>
     </div>
   );
 };

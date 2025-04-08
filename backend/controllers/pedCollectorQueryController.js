@@ -13,6 +13,44 @@ exports.getAllCollectorQueries = async (req, res) => {
   }
 };
 
+// Get queries by country and document type filter
+exports.getQueriesByFilter = async (req, res) => {
+  try {
+    const { country, documentType } = req.query;
+    
+    await pool.connect();
+    let query = 'SELECT * FROM ped_collector_query WHERE 1=1';
+    const params = {};
+    
+    if (country) {
+      query += ' AND target_country = @country';
+      params.country = country;
+    }
+    
+    if (documentType) {
+      query += ' AND target_document_type = @documentType';
+      params.documentType = documentType;
+    }
+    
+    const request = pool.request();
+    
+    // Add parameters if they exist
+    if (params.country) {
+      request.input('country', sql.VarChar(50), params.country);
+    }
+    
+    if (params.documentType) {
+      request.input('documentType', sql.VarChar(50), params.documentType);
+    }
+    
+    const result = await request.query(query);
+    res.status(200).json(result.recordset);
+  } catch (error) {
+    console.error('Error fetching filtered queries:', error);
+    res.status(500).json({ message: 'Error fetching filtered queries', error: error.message });
+  }
+};
+
 // Get collector query by ID
 exports.getCollectorQueryById = async (req, res) => {
   try {
