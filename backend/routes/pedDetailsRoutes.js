@@ -21,7 +21,4 @@ router.put('/:id', pedDetailsController.updatePedDetail);
 // DELETE PED detail
 router.delete('/:id', pedDetailsController.deletePedDetail);
 
-// POST extract document details using OCR
-router.post('/ocr', pedDetailsController.extractDocumentDetailsWithOCR);
-
 module.exports = router;
