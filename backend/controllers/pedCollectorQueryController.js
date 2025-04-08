@@ -26,6 +26,18 @@ const mockQueries = [
     query: "United Kingdom Passport",
     insertDatetime: "2023-01-15T11:22:33.123Z",
     updateDatetime: "2023-02-20T15:30:45.987Z"
+  },
+  {
+    id: 5,
+    query: "France National ID",
+    insertDatetime: "2023-05-10T08:45:12.333Z",
+    updateDatetime: "2023-05-10T08:45:12.333Z"
+  },
+  {
+    id: 6,
+    query: "Germany Residence Permit",
+    insertDatetime: "2023-09-22T16:30:05.777Z",
+    updateDatetime: "2023-10-15T12:20:45.123Z"
   }
 ];
 
