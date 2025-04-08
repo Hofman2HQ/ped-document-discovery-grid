@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Play, Plus, Edit, Trash2 } from 'lucide-react';
@@ -268,11 +269,11 @@ const Queries = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Query</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Last Updated</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="text-black font-semibold">ID</TableHead>
+                <TableHead className="text-black font-semibold">Query</TableHead>
+                <TableHead className="text-black font-semibold">Created</TableHead>
+                <TableHead className="text-black font-semibold">Last Updated</TableHead>
+                <TableHead className="text-black font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -289,22 +290,22 @@ const Queries = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Query</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Last Updated</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="text-black font-semibold">ID</TableHead>
+                <TableHead className="text-black font-semibold">Query</TableHead>
+                <TableHead className="text-black font-semibold">Created</TableHead>
+                <TableHead className="text-black font-semibold">Last Updated</TableHead>
+                <TableHead className="text-black font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {queries.map((query) => (
                 <TableRow key={query.id}>
-                  <TableCell>{query.id}</TableCell>
-                  <TableCell className="max-w-md truncate">
+                  <TableCell className="text-black">{query.id}</TableCell>
+                  <TableCell className="max-w-md truncate text-black">
                     {query.query}
                   </TableCell>
-                  <TableCell>{formatDate(query.insertDatetime)}</TableCell>
-                  <TableCell>{formatDate(query.updateDatetime)}</TableCell>
+                  <TableCell className="text-black">{formatDate(query.insertDatetime)}</TableCell>
+                  <TableCell className="text-black">{formatDate(query.updateDatetime)}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button
