@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Execution } from '@/types';
+import ExecutionStats from '@/components/ExecutionStats';
 
 const Executions = () => {
   const { toast } = useToast();
@@ -64,6 +65,14 @@ const Executions = () => {
           Track and manage all query executions
         </p>
       </div>
+
+      {/* Stats Section */}
+      {executions && executions.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Execution Statistics</h2>
+          <ExecutionStats executions={executions} />
+        </div>
+      )}
 
       <Card>
         <CardHeader>
