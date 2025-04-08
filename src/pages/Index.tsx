@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from "react";
-import { toast } from "react-toastify";
-import { LoadingOutlined, FileTextOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, FileText, CheckCircle, XCircle } from "lucide-react";
 import { Document, SearchFilters } from "@/types";
 import { 
   fetchDocuments, 
@@ -13,57 +12,10 @@ import SearchBar from "@/components/SearchBar";
 import DocumentGrid from "@/components/DocumentGrid";
 import DocumentModal from "@/components/DocumentModal";
 import EmptyState from "@/components/EmptyState";
-import { Tag } from "antd";
-import styled from "styled-components";
-
-const Container = styled.div`
-  min-height: 100vh;
-  background-color: #f5f5f5;
-`;
-
-const Content = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-`;
-
-const Header = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const Title = styled.h1`
-  font-size: 2rem;
-  font-weight: bold;
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 16rem;
-  gap: 0.5rem;
-`;
-
-const ResultHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-`;
-
-const ResultsTitle = styled.h2`
-  font-size: 1.25rem;
-  font-weight: 600;
-`;
-
-const TagsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-`;
+import { Badge } from "@/components/ui/badge";
 
 const Index = () => {
+  const { toast } = useToast();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,14 +47,18 @@ const Index = () => {
       } catch (err) {
         console.error("Failed to fetch documents:", err);
         setError("Failed to load documents. Please try again later.");
-        toast.error("Failed to load documents. Please try again later.");
+        toast({
+          title: "Error",
+          description: "Failed to load documents. Please try again later.",
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
     };
 
     loadInitialData();
-  }, []);
+  }, [toast]);
 
   const handleSearch = async (filters: SearchFilters) => {
     try {
@@ -127,7 +83,11 @@ const Index = () => {
       setActiveSfmStatus(filters.sfmStatus !== 'all' ? filters.sfmStatus : "");
     } catch (err) {
       console.error("Error applying filters:", err);
-      toast.error("Failed to apply filters. Please try again.");
+      toast({
+        title: "Error",
+        description: "Failed to apply filters. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -144,11 +104,11 @@ const Index = () => {
   };
 
   return (
-    <Container>
-      <Content>
-        <Header>
-          <Title>Publicly Exposed Documents</Title>
-        </Header>
+    <div className="min-h-screen bg-background">
+      <div className="container py-8 mx-auto">
+        <div className="mb-6">
+          <h1 className="text-4xl font-bold">Publicly Exposed Documents</h1>
+        </div>
         
         <SearchBar 
           countries={countries} 
@@ -158,46 +118,54 @@ const Index = () => {
         />
 
         {loading ? (
-          <LoadingContainer>
-            <LoadingOutlined style={{ fontSize: 24 }} />
-            <span>Loading documents...</span>
-          </LoadingContainer>
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2">Loading documents...</span>
+          </div>
         ) : error ? (
-          <div style={{ color: 'red', textAlign: 'center', padding: '1rem' }}>
+          <div className="text-destructive text-center p-4">
             {error}
           </div>
         ) : filteredDocuments.length === 0 ? (
           <EmptyState />
         ) : (
-          <div style={{ marginBottom: '2rem' }}>
-            <ResultHeader>
-              <div>
-                <ResultsTitle>
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-xl font-semibold">
                   Results ({filteredDocuments.length})
-                </ResultsTitle>
+                </h2>
                 
-                <TagsContainer>
-                  {activeSearchedQuery && (
-                    <Tag color="blue" icon={<FileTextOutlined />}>
-                      Query: {activeSearchedQuery}
-                    </Tag>
-                  )}
-                  
-                  {activePodId && (
-                    <Tag color="purple">
-                      Pod ID: {activePodId}
-                    </Tag>
-                  )}
+                {activeSearchedQuery && (
+                  <Badge className="flex items-center gap-1 bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1">
+                    <FileText className="h-3.5 w-3.5" />
+                    <span>Query: {activeSearchedQuery}</span>
+                  </Badge>
+                )}
+                
+                {activePodId && (
+                  <Badge className="flex items-center gap-1 bg-secondary/10 text-secondary hover:bg-secondary/20 px-3 py-1">
+                    <span>Pod ID: {activePodId}</span>
+                  </Badge>
+                )}
 
-                  {activeSfmStatus && (
-                    <Tag color={activeSfmStatus === 'yes' ? 'green' : 'red'} 
-                         icon={activeSfmStatus === 'yes' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}>
-                      {activeSfmStatus === 'yes' ? 'In SFM' : 'Not in SFM'}
-                    </Tag>
-                  )}
-                </TagsContainer>
+                {activeSfmStatus && (
+                  <Badge className="flex items-center gap-1 bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1">
+                    {activeSfmStatus === 'yes' ? (
+                      <>
+                        <CheckCircle className="h-3.5 w-3.5 mr-1" />
+                        <span>In SFM</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="h-3.5 w-3.5 mr-1" />
+                        <span>Not in SFM</span>
+                      </>
+                    )}
+                  </Badge>
+                )}
               </div>
-            </ResultHeader>
+            </div>
             <DocumentGrid 
               documents={filteredDocuments} 
               onDocumentClick={handleDocumentClick} 
@@ -210,8 +178,8 @@ const Index = () => {
           isOpen={isModalOpen} 
           onClose={closeModal} 
         />
-      </Content>
-    </Container>
+      </div>
+    </div>
   );
 };
 
