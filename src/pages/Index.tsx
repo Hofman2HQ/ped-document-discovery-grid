@@ -63,11 +63,11 @@ const Index = () => {
       setLoading(true);
       const filteredDocs = await fetchDocuments({
         searchText: filters.searchText,
-        country: filters.country,
-        documentType: filters.documentType,
+        country: filters.country === 'all' ? '' : filters.country,
+        documentType: filters.documentType === 'all' ? '' : filters.documentType,
         dateFrom: filters.dateRange.from,
         dateTo: filters.dateRange.to,
-        state: filters.state
+        state: filters.state === 'all' ? '' : filters.state
       });
       setFilteredDocuments(filteredDocs);
     } catch (err) {

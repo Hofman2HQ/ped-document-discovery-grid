@@ -122,7 +122,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
               <SelectValue placeholder="All Countries" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Countries</SelectItem>
+              <SelectItem value="all">All Countries</SelectItem>
               {countries.map(country => (
                 <SelectItem key={country} value={country}>
                   {country}
@@ -140,7 +140,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
               <SelectValue placeholder="All Types" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Types</SelectItem>
+              <SelectItem value="all">All Types</SelectItem>
               {documentTypes.map(type => (
                 <SelectItem key={type} value={type}>
                   {type}
@@ -158,7 +158,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
               <SelectValue placeholder="All States" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All States</SelectItem>
+              <SelectItem value="all">All States</SelectItem>
               {states.map(state => (
                 <SelectItem key={state} value={state}>
                   {state}
