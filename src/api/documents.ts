@@ -4,112 +4,148 @@ import { Document } from '@/types';
 // Mock data for document examples - representing sensitive documents found online
 const mockDocuments: Document[] = [
   {
-    id: "doc-1",
+    transactionId: "doc-1",
     image_url: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9",
     page_url: "https://example.com/exposed-document-1",
     country: "United States",
     document_type: "Passport",
     created_at: "2025-01-15T08:30:00Z",
-    state: "California"
+    state: "California",
+    ped_search_country: "US",
+    ped_search_document_type: "PASS",
+    loaded_to_sfm: true
   },
   {
-    id: "doc-2",
+    transactionId: "doc-2",
     image_url: "https://images.unsplash.com/photo-1575429198097-0414ec08e8cd",
     page_url: "https://example.org/personal-data-leak",
     country: "Canada",
     document_type: "IDs",
     created_at: "2025-02-03T14:20:00Z",
-    state: "Ontario"
+    state: "Ontario",
+    ped_search_country: "CA",
+    ped_search_document_type: "ID",
+    loaded_to_sfm: false
   },
   {
-    id: "doc-3",
+    transactionId: "doc-3",
     image_url: "https://images.unsplash.com/photo-1650315985351-766f7da476e9",
     page_url: "https://leaked-docs.net/financial-records",
     country: "United Kingdom",
     document_type: "Driving License",
     created_at: "2025-03-11T11:45:00Z",
-    state: ""
+    state: "",
+    ped_search_country: "UK",
+    ped_search_document_type: "DL",
+    loaded_to_sfm: true
   },
   {
-    id: "doc-4",
+    transactionId: "doc-4",
     image_url: "https://images.unsplash.com/photo-1586232151244-9b656311a3e1",
     page_url: "https://data-breach.com/personal-info",
     country: "Australia",
     document_type: "Driving License",
     created_at: "2025-02-18T09:15:00Z",
-    state: "New South Wales"
+    state: "New South Wales",
+    ped_search_country: "AU",
+    ped_search_document_type: "DL",
+    loaded_to_sfm: false
   },
   {
-    id: "doc-5",
+    transactionId: "doc-5",
     image_url: "https://images.unsplash.com/photo-1569235186275-626cb53b83ce",
     page_url: "https://insecure-site.org/documents",
     country: "Germany",
     document_type: "IDs",
     created_at: "2025-01-27T16:40:00Z",
-    state: ""
+    state: "",
+    ped_search_country: "DE",
+    ped_search_document_type: "ID",
+    loaded_to_sfm: true
   },
   {
-    id: "doc-6",
+    transactionId: "doc-6",
     image_url: "https://images.unsplash.com/photo-1517842645767-c639042777db",
     page_url: "https://poor-security.com/files",
     country: "France",
     document_type: "Passport",
     created_at: "2025-03-05T10:20:00Z",
-    state: ""
+    state: "",
+    ped_search_country: "FR",
+    ped_search_document_type: "PASS",
+    loaded_to_sfm: false
   },
   {
-    id: "doc-7",
+    transactionId: "doc-7",
     image_url: "https://images.unsplash.com/photo-1607175596049-e42cbca6104f",
     page_url: "https://exposed-api.net/customer-data",
     country: "Japan",
     document_type: "IDs",
     created_at: "2025-02-10T13:50:00Z",
-    state: ""
+    state: "",
+    ped_search_country: "JP",
+    ped_search_document_type: "ID",
+    loaded_to_sfm: true
   },
   {
-    id: "doc-8",
+    transactionId: "doc-8",
     image_url: "https://images.unsplash.com/photo-1572059002053-8cc5ad2f4a38",
     page_url: "https://misconfigured-server.com/private",
     country: "Brazil",
     document_type: "IDs",
     created_at: "2025-01-09T09:00:00Z",
-    state: "São Paulo"
+    state: "São Paulo",
+    ped_search_country: "BR",
+    ped_search_document_type: "ID",
+    loaded_to_sfm: false
   },
   {
-    id: "doc-9",
+    transactionId: "doc-9",
     image_url: "https://images.unsplash.com/photo-1621950111557-d59851e08c18",
     page_url: "https://leaked-database.org/records",
     country: "India",
     document_type: "Driving License",
     created_at: "2025-03-22T15:30:00Z",
-    state: "Maharashtra"
+    state: "Maharashtra",
+    ped_search_country: "IN",
+    ped_search_document_type: "DL",
+    loaded_to_sfm: true
   },
   {
-    id: "doc-10",
+    transactionId: "doc-10",
     image_url: "https://images.unsplash.com/photo-1636633762833-5d1658f1e29b",
     page_url: "https://public-folder.cloud/documents",
     country: "South Africa",
     document_type: "IDs",
     created_at: "2025-02-28T11:10:00Z",
-    state: ""
+    state: "",
+    ped_search_country: "ZA",
+    ped_search_document_type: "ID",
+    loaded_to_sfm: false
   },
   {
-    id: "doc-11",
+    transactionId: "doc-11",
     image_url: "https://images.unsplash.com/photo-1586075010923-2dd4570fb338",
     page_url: "https://unsecured-storage.net/personal",
     country: "Mexico",
     document_type: "IDs",
     created_at: "2025-01-20T14:15:00Z",
-    state: "Jalisco"
+    state: "Jalisco",
+    ped_search_country: "MX",
+    ped_search_document_type: "ID",
+    loaded_to_sfm: true
   },
   {
-    id: "doc-12",
+    transactionId: "doc-12",
     image_url: "https://images.unsplash.com/photo-1597852074816-d933c7d2b988",
     page_url: "https://open-bucket.storage/sensitive",
     country: "Spain",
     document_type: "Passport",
     created_at: "2025-03-18T08:45:00Z",
-    state: ""
+    state: "",
+    ped_search_country: "ES",
+    ped_search_document_type: "PASS",
+    loaded_to_sfm: false
   },
 ];
 

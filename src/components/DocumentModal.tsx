@@ -12,7 +12,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Calendar, ExternalLink, MapPin, FileText } from 'lucide-react';
+import { Calendar, ExternalLink, MapPin, FileText, Flag, Check, X } from 'lucide-react';
 
 interface DocumentModalProps {
   document: Document | null;
@@ -65,17 +65,23 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           <div className="rounded-md overflow-hidden aspect-video bg-muted">
             <img
               src={document.image_url}
-              alt={`Document ${document.id}`}
+              alt={`Document ${document.transactionId}`}
               className="w-full h-full object-contain"
             />
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">Transaction ID</h3>
+              <p>{document.transactionId}</p>
+            </div>
+            
+            <div>
               <h3 className="text-sm font-medium text-muted-foreground mb-1">Document Type</h3>
               <p className="flex items-center">
                 <FileText className="mr-1.5 h-4 w-4 text-primary" />
-                {document.document_type}
+                {document.document_type} 
+                <span className="ml-1 text-xs">({document.ped_search_document_type})</span>
               </p>
             </div>
             
@@ -84,6 +90,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
               <p className="flex items-center">
                 <MapPin className="mr-1.5 h-4 w-4 text-primary" />
                 {document.country}
+                <span className="ml-1 text-xs">({document.ped_search_country})</span>
               </p>
             </div>
             
@@ -92,6 +99,18 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
               <p className="flex items-center">
                 <Calendar className="mr-1.5 h-4 w-4 text-primary" />
                 {formattedDate}
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">Loaded to SFM</h3>
+              <p className="flex items-center">
+                <Flag className="mr-1.5 h-4 w-4 text-primary" />
+                {document.loaded_to_sfm ? (
+                  <><span className="mr-1">Yes</span><Check className="h-4 w-4 text-green-500" /></>
+                ) : (
+                  <><span className="mr-1">No</span><X className="h-4 w-4 text-red-500" /></>
+                )}
               </p>
             </div>
             

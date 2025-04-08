@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Document } from '@/types';
-import { ExternalLink, Calendar, MapPin, FileText } from 'lucide-react';
+import { ExternalLink, Calendar, MapPin, FileText, Flag, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -34,7 +34,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document, onClick }) => {
       <div className="relative aspect-video bg-muted overflow-hidden cursor-pointer" onClick={onClick}>
         <img
           src={document.image_url}
-          alt={`Document ${document.id}`}
+          alt={`Document ${document.transactionId}`}
           className="object-cover w-full h-full transition-transform duration-200 hover:scale-105"
         />
         <Badge 
@@ -49,16 +49,28 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document, onClick }) => {
           <div className="flex items-center text-sm text-muted-foreground">
             <FileText className="mr-1 h-3.5 w-3.5" />
             <span className="font-medium">{document.document_type}</span>
+            <span className="ml-1 text-xs">({document.ped_search_document_type})</span>
           </div>
           
           <div className="flex items-center text-sm text-muted-foreground">
             <MapPin className="mr-1 h-3.5 w-3.5" />
             <span>{document.country}</span>
+            <span className="ml-1 text-xs">({document.ped_search_country})</span>
           </div>
           
           <div className="flex items-center text-sm text-muted-foreground">
             <Calendar className="mr-1 h-3.5 w-3.5" />
             <span>{formattedDate}</span>
+          </div>
+
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Flag className="mr-1 h-3.5 w-3.5" />
+            <span>SFM:</span>
+            {document.loaded_to_sfm ? (
+              <Check className="ml-1 h-3.5 w-3.5 text-green-500" />
+            ) : (
+              <X className="ml-1 h-3.5 w-3.5 text-red-500" />
+            )}
           </div>
 
           <div className="flex items-center text-sm pt-1">
