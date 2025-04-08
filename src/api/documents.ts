@@ -10,43 +10,43 @@ const mockDocuments: Document[] = [
     country: "United States",
     document_type: "Passport",
     created_at: "2025-01-15T08:30:00Z",
-    state: "Active"
+    state: "California"
   },
   {
     id: "doc-2",
     image_url: "https://images.unsplash.com/photo-1575429198097-0414ec08e8cd",
     page_url: "https://example.org/personal-data-leak",
     country: "Canada",
-    document_type: "ID Card",
+    document_type: "IDs",
     created_at: "2025-02-03T14:20:00Z",
-    state: "Archived"
+    state: "Ontario"
   },
   {
     id: "doc-3",
     image_url: "https://images.unsplash.com/photo-1650315985351-766f7da476e9",
     page_url: "https://leaked-docs.net/financial-records",
     country: "United Kingdom",
-    document_type: "Invoice",
+    document_type: "Driving License",
     created_at: "2025-03-11T11:45:00Z",
-    state: "Active"
+    state: ""
   },
   {
     id: "doc-4",
     image_url: "https://images.unsplash.com/photo-1586232151244-9b656311a3e1",
     page_url: "https://data-breach.com/personal-info",
     country: "Australia",
-    document_type: "Driver License",
+    document_type: "Driving License",
     created_at: "2025-02-18T09:15:00Z",
-    state: "Active"
+    state: "New South Wales"
   },
   {
     id: "doc-5",
     image_url: "https://images.unsplash.com/photo-1569235186275-626cb53b83ce",
     page_url: "https://insecure-site.org/documents",
     country: "Germany",
-    document_type: "Tax Form",
+    document_type: "IDs",
     created_at: "2025-01-27T16:40:00Z",
-    state: "Removed"
+    state: ""
   },
   {
     id: "doc-6",
@@ -55,61 +55,61 @@ const mockDocuments: Document[] = [
     country: "France",
     document_type: "Passport",
     created_at: "2025-03-05T10:20:00Z",
-    state: "Active"
+    state: ""
   },
   {
     id: "doc-7",
     image_url: "https://images.unsplash.com/photo-1607175596049-e42cbca6104f",
     page_url: "https://exposed-api.net/customer-data",
     country: "Japan",
-    document_type: "Bank Statement",
+    document_type: "IDs",
     created_at: "2025-02-10T13:50:00Z",
-    state: "Active"
+    state: ""
   },
   {
     id: "doc-8",
     image_url: "https://images.unsplash.com/photo-1572059002053-8cc5ad2f4a38",
     page_url: "https://misconfigured-server.com/private",
     country: "Brazil",
-    document_type: "Medical Record",
+    document_type: "IDs",
     created_at: "2025-01-09T09:00:00Z",
-    state: "Archived"
+    state: "São Paulo"
   },
   {
     id: "doc-9",
     image_url: "https://images.unsplash.com/photo-1621950111557-d59851e08c18",
     page_url: "https://leaked-database.org/records",
     country: "India",
-    document_type: "Credit Card Statement",
+    document_type: "Driving License",
     created_at: "2025-03-22T15:30:00Z",
-    state: "Active"
+    state: "Maharashtra"
   },
   {
     id: "doc-10",
     image_url: "https://images.unsplash.com/photo-1636633762833-5d1658f1e29b",
     page_url: "https://public-folder.cloud/documents",
     country: "South Africa",
-    document_type: "Utility Bill",
+    document_type: "IDs",
     created_at: "2025-02-28T11:10:00Z",
-    state: "Removed"
+    state: ""
   },
   {
     id: "doc-11",
     image_url: "https://images.unsplash.com/photo-1586075010923-2dd4570fb338",
     page_url: "https://unsecured-storage.net/personal",
     country: "Mexico",
-    document_type: "ID Card",
+    document_type: "IDs",
     created_at: "2025-01-20T14:15:00Z",
-    state: "Active"
+    state: "Jalisco"
   },
   {
     id: "doc-12",
     image_url: "https://images.unsplash.com/photo-1597852074816-d933c7d2b988",
     page_url: "https://open-bucket.storage/sensitive",
     country: "Spain",
-    document_type: "Work Contract",
+    document_type: "Passport",
     created_at: "2025-03-18T08:45:00Z",
-    state: "Active"
+    state: ""
   },
 ];
 
@@ -121,14 +121,33 @@ export const getUniqueCountries = (): string[] => {
 
 // Return all unique document types for filtering
 export const getUniqueDocumentTypes = (): string[] => {
-  const types = mockDocuments.map(doc => doc.document_type);
-  return [...new Set(types)];
+  // We'll force the exact document types required
+  return ["IDs", "Passport", "Driving License"];
 };
 
 // Return all unique states for filtering
 export const getUniqueStates = (): string[] => {
-  const states = mockDocuments.map(doc => doc.state);
+  const states = mockDocuments.map(doc => doc.state).filter(state => state !== "");
   return [...new Set(states)];
+};
+
+// Get the states for a particular country
+export const getStatesForCountry = (country: string): string[] => {
+  if (!country || country === 'all') return [];
+  
+  const states = mockDocuments
+    .filter(doc => doc.country === country && doc.state !== "")
+    .map(doc => doc.state);
+  
+  return [...new Set(states)];
+};
+
+// Check if a country has multiple states
+export const countryHasMultipleStates = (country: string): boolean => {
+  if (!country || country === 'all') return false;
+  
+  const states = getStatesForCountry(country);
+  return states.length > 0;
 };
 
 // Fetch documents with optional filtering
@@ -150,9 +169,7 @@ export const fetchDocuments = async (filters?: {
     if (filters.searchText) {
       const searchLower = filters.searchText.toLowerCase();
       filteredDocs = filteredDocs.filter(doc => 
-        doc.page_url.toLowerCase().includes(searchLower) || 
-        doc.country.toLowerCase().includes(searchLower) ||
-        doc.document_type.toLowerCase().includes(searchLower)
+        doc.image_url.toLowerCase().includes(searchLower)
       );
     }
 

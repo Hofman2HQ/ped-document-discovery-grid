@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +20,7 @@ import { format } from 'date-fns';
 import { SearchFilters } from '@/types';
 import { CalendarIcon, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { countryHasMultipleStates, getStatesForCountry } from '@/api/documents';
 
 interface SearchBarProps {
   countries: string[];
@@ -45,12 +46,34 @@ const SearchBar: React.FC<SearchBarProps> = ({
     state: ''
   });
 
+  const [availableStates, setAvailableStates] = useState<string[]>([]);
+  const [showStateFilter, setShowStateFilter] = useState(false);
+
+  useEffect(() => {
+    if (filters.country && filters.country !== 'all') {
+      const hasStates = countryHasMultipleStates(filters.country);
+      setShowStateFilter(hasStates);
+      
+      if (hasStates) {
+        const countryStates = getStatesForCountry(filters.country);
+        setAvailableStates(countryStates);
+      } else {
+        setFilters(prev => ({ ...prev, state: '' }));
+        setAvailableStates([]);
+      }
+    } else {
+      setShowStateFilter(false);
+      setFilters(prev => ({ ...prev, state: '' }));
+      setAvailableStates([]);
+    }
+  }, [filters.country]);
+
   const handleSearchTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters(prev => ({ ...prev, searchText: e.target.value }));
   };
 
   const handleCountryChange = (value: string) => {
-    setFilters(prev => ({ ...prev, country: value }));
+    setFilters(prev => ({ ...prev, country: value, state: '' }));
   };
 
   const handleDocumentTypeChange = (value: string) => {
@@ -83,6 +106,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       },
       state: ''
     });
+    setShowStateFilter(false);
     onSearch({
       searchText: '',
       country: '',
@@ -101,12 +125,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         {/* Search Text */}
         <div className="space-y-2">
-          <Label htmlFor="searchText">Search</Label>
+          <Label htmlFor="searchText">Search in Image URL</Label>
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               id="searchText"
-              placeholder="Search in documents..."
+              placeholder="Search in image URLs..."
               value={filters.searchText}
               onChange={handleSearchTextChange}
               className="pl-8"
@@ -150,26 +174,28 @@ const SearchBar: React.FC<SearchBarProps> = ({
           </Select>
         </div>
 
-        {/* State Dropdown */}
-        <div className="space-y-2">
-          <Label htmlFor="state">State</Label>
-          <Select value={filters.state} onValueChange={handleStateChange}>
-            <SelectTrigger id="state">
-              <SelectValue placeholder="All States" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All States</SelectItem>
-              {states.map(state => (
-                <SelectItem key={state} value={state}>
-                  {state}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {/* State Dropdown - Conditionally rendered */}
+        {showStateFilter && (
+          <div className="space-y-2">
+            <Label htmlFor="state">State</Label>
+            <Select value={filters.state} onValueChange={handleStateChange}>
+              <SelectTrigger id="state">
+                <SelectValue placeholder="All States" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All States</SelectItem>
+                {availableStates.map(state => (
+                  <SelectItem key={state} value={state}>
+                    {state}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {/* Date Range */}
-        <div className="space-y-2 col-span-1 md:col-span-2">
+        <div className={`space-y-2 col-span-1 md:col-span-2 ${showStateFilter ? 'lg:col-span-2' : 'lg:col-span-1'}`}>
           <Label>Date Range</Label>
           <Popover>
             <PopoverTrigger asChild>
