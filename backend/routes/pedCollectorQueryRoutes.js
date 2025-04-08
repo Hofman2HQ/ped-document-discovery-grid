@@ -6,9 +6,6 @@ const pedCollectorQueryController = require('../controllers/pedCollectorQueryCon
 // GET all collector queries
 router.get('/', pedCollectorQueryController.getAllCollectorQueries);
 
-// GET collector queries by country and document type
-router.get('/filter', pedCollectorQueryController.getQueriesByFilter);
-
 // GET collector query by ID
 router.get('/:id', pedCollectorQueryController.getCollectorQueryById);
 

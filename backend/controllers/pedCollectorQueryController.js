@@ -1,53 +1,49 @@
 
 const { pool, sql } = require('../config/db');
 
+// Mock data for development
+const mockQueries = [
+  {
+    id: 1,
+    query: "nederland id card",
+    insertDatetime: "2021-11-03T14:18:54.546Z",
+    updateDatetime: "2021-11-14T09:57:52.780Z"
+  },
+  {
+    id: 2,
+    query: "Israel Driver license",
+    insertDatetime: "2022-07-19T07:38:10.476Z",
+    updateDatetime: "2022-07-19T07:38:10.476Z"
+  },
+  {
+    id: 3,
+    query: "Algeria Id Card",
+    insertDatetime: "2022-07-19T07:38:10.640Z",
+    updateDatetime: "2022-07-19T07:38:10.640Z"
+  },
+  {
+    id: 4,
+    query: "United Kingdom Passport",
+    insertDatetime: "2023-01-15T11:22:33.123Z",
+    updateDatetime: "2023-02-20T15:30:45.987Z"
+  }
+];
+
 // Get all collector queries
 exports.getAllCollectorQueries = async (req, res) => {
   try {
+    // For development, return mock data
+    return res.status(200).json(mockQueries);
+    
+    // When database is ready, use this:
+    /*
     await pool.connect();
     const result = await pool.request().query('SELECT * FROM ped_collector_query');
     res.status(200).json(result.recordset);
+    */
   } catch (error) {
     console.error('Error fetching collector queries:', error);
     res.status(500).json({ message: 'Error fetching collector queries', error: error.message });
-  }
-};
-
-// Get queries by country and document type filter
-exports.getQueriesByFilter = async (req, res) => {
-  try {
-    const { country, documentType } = req.query;
-    
-    await pool.connect();
-    let query = 'SELECT * FROM ped_collector_query WHERE 1=1';
-    const params = {};
-    
-    if (country) {
-      query += ' AND target_country = @country';
-      params.country = country;
-    }
-    
-    if (documentType) {
-      query += ' AND target_document_type = @documentType';
-      params.documentType = documentType;
-    }
-    
-    const request = pool.request();
-    
-    // Add parameters if they exist
-    if (params.country) {
-      request.input('country', sql.VarChar(50), params.country);
-    }
-    
-    if (params.documentType) {
-      request.input('documentType', sql.VarChar(50), params.documentType);
-    }
-    
-    const result = await request.query(query);
-    res.status(200).json(result.recordset);
-  } catch (error) {
-    console.error('Error fetching filtered queries:', error);
-    res.status(500).json({ message: 'Error fetching filtered queries', error: error.message });
   }
 };
 
@@ -56,6 +52,15 @@ exports.getCollectorQueryById = async (req, res) => {
   try {
     const { id } = req.params;
     
+    // For development, return mock data
+    const query = mockQueries.find(q => q.id === parseInt(id));
+    if (!query) {
+      return res.status(404).json({ message: 'Collector query not found' });
+    }
+    return res.status(200).json(query);
+    
+    // When database is ready, use this:
+    /*
     await pool.connect();
     const result = await pool.request()
       .input('id', sql.Int, id)
@@ -66,6 +71,7 @@ exports.getCollectorQueryById = async (req, res) => {
     }
     
     res.status(200).json(result.recordset[0]);
+    */
   } catch (error) {
     console.error('Error fetching collector query by ID:', error);
     res.status(500).json({ message: 'Error fetching collector query', error: error.message });
@@ -75,25 +81,36 @@ exports.getCollectorQueryById = async (req, res) => {
 // Create new collector query
 exports.createCollectorQuery = async (req, res) => {
   try {
-    const { query_text, target_country, target_document_type, is_active } = req.body;
+    const { query } = req.body;
     
     // Validate input
-    if (!query_text || !target_country || !target_document_type) {
+    if (!query) {
       return res.status(400).json({ 
-        message: 'Query text, target country, and target document type are required' 
+        message: 'Query text is required' 
       });
     }
     
+    // For development, return mock data
+    const now = new Date();
+    const newQuery = {
+      id: mockQueries.length > 0 ? Math.max(...mockQueries.map(q => q.id)) + 1 : 1,
+      query,
+      insertDatetime: now.toISOString(),
+      updateDatetime: now.toISOString()
+    };
+    
+    mockQueries.push(newQuery);
+    return res.status(201).json(newQuery);
+    
+    // When database is ready, use this:
+    /*
     await pool.connect();
     const result = await pool.request()
-      .input('query_text', sql.VarChar(500), query_text)
-      .input('target_country', sql.VarChar(50), target_country)
-      .input('target_document_type', sql.VarChar(50), target_document_type)
-      .input('is_active', sql.Bit, is_active || true)
+      .input('query', sql.VarChar(500), query)
       .query(`
         INSERT INTO ped_collector_query 
-        (query_text, target_country, target_document_type, created_at, last_run_at, is_active)
-        VALUES (@query_text, @target_country, @target_document_type, GETDATE(), GETDATE(), @is_active);
+        (query, insertDatetime, updateDatetime)
+        VALUES (@query, GETDATE(), GETDATE());
         
         SELECT SCOPE_IDENTITY() AS id;
       `);
@@ -102,13 +119,11 @@ exports.createCollectorQuery = async (req, res) => {
     
     res.status(201).json({ 
       id: newId,
-      query_text,
-      target_country,
-      target_document_type,
-      created_at: new Date(),
-      last_run_at: new Date(),
-      is_active: is_active || true
+      query,
+      insertDatetime: new Date(),
+      updateDatetime: new Date(),
     });
+    */
   } catch (error) {
     console.error('Error creating collector query:', error);
     res.status(500).json({ message: 'Error creating collector query', error: error.message });
@@ -119,8 +134,26 @@ exports.createCollectorQuery = async (req, res) => {
 exports.updateCollectorQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { query_text, target_country, target_document_type, is_active } = req.body;
+    const { query } = req.body;
     
+    // For development, update mock data
+    const queryIndex = mockQueries.findIndex(q => q.id === parseInt(id));
+    if (queryIndex === -1) {
+      return res.status(404).json({ message: 'Collector query not found' });
+    }
+    
+    const now = new Date();
+    const updatedQuery = {
+      ...mockQueries[queryIndex],
+      query,
+      updateDatetime: now.toISOString()
+    };
+    
+    mockQueries[queryIndex] = updatedQuery;
+    return res.status(200).json(updatedQuery);
+    
+    // When database is ready, use this:
+    /*
     await pool.connect();
     
     // Check if record exists
@@ -135,29 +168,20 @@ exports.updateCollectorQuery = async (req, res) => {
     // Update record
     await pool.request()
       .input('id', sql.Int, id)
-      .input('query_text', sql.VarChar(500), query_text)
-      .input('target_country', sql.VarChar(50), target_country)
-      .input('target_document_type', sql.VarChar(50), target_document_type)
-      .input('is_active', sql.Bit, is_active)
-      .input('last_run_at', sql.DateTime, new Date())
+      .input('query', sql.VarChar(500), query)
       .query(`
         UPDATE ped_collector_query
-        SET query_text = @query_text,
-            target_country = @target_country,
-            target_document_type = @target_document_type,
-            last_run_at = @last_run_at,
-            is_active = @is_active
+        SET query = @query,
+            updateDatetime = GETDATE()
         WHERE id = @id
       `);
     
     res.status(200).json({ 
       id: parseInt(id),
-      query_text,
-      target_country,
-      target_document_type,
-      last_run_at: new Date(),
-      is_active
+      query,
+      updateDatetime: new Date()
     });
+    */
   } catch (error) {
     console.error('Error updating collector query:', error);
     res.status(500).json({ message: 'Error updating collector query', error: error.message });
@@ -169,6 +193,17 @@ exports.deleteCollectorQuery = async (req, res) => {
   try {
     const { id } = req.params;
     
+    // For development, delete from mock data
+    const queryIndex = mockQueries.findIndex(q => q.id === parseInt(id));
+    if (queryIndex === -1) {
+      return res.status(404).json({ message: 'Collector query not found' });
+    }
+    
+    mockQueries.splice(queryIndex, 1);
+    return res.status(200).json({ message: 'Collector query deleted successfully' });
+    
+    // When database is ready, use this:
+    /*
     await pool.connect();
     
     // Check if record exists
@@ -186,6 +221,7 @@ exports.deleteCollectorQuery = async (req, res) => {
       .query('DELETE FROM ped_collector_query WHERE id = @id');
     
     res.status(200).json({ message: 'Collector query deleted successfully' });
+    */
   } catch (error) {
     console.error('Error deleting collector query:', error);
     res.status(500).json({ message: 'Error deleting collector query', error: error.message });
@@ -197,6 +233,31 @@ exports.executeCollectorQuery = async (req, res) => {
   try {
     const { id } = req.params;
     
+    // For development, find in mock data
+    const query = mockQueries.find(q => q.id === parseInt(id));
+    if (!query) {
+      return res.status(404).json({ message: 'Collector query not found' });
+    }
+    
+    const executedAt = new Date();
+    const updatedQuery = {
+      ...query,
+      updateDatetime: executedAt.toISOString()
+    };
+    
+    // Update the mock data
+    const queryIndex = mockQueries.findIndex(q => q.id === parseInt(id));
+    mockQueries[queryIndex] = updatedQuery;
+    
+    // Return success message
+    return res.status(200).json({ 
+      message: 'Query executed successfully',
+      queryId: parseInt(id),
+      executedAt
+    });
+    
+    // When database is ready, use this:
+    /*
     await pool.connect();
     
     // Check if record exists
@@ -208,30 +269,22 @@ exports.executeCollectorQuery = async (req, res) => {
       return res.status(404).json({ message: 'Collector query not found' });
     }
     
-    const query = checkResult.recordset[0];
-    
-    if (!query.is_active) {
-      return res.status(400).json({ message: 'Query is not active' });
-    }
-    
     // Update last run time
     await pool.request()
       .input('id', sql.Int, id)
-      .input('last_run_at', sql.DateTime, new Date())
+      .input('updateDatetime', sql.DateTime, new Date())
       .query(`
         UPDATE ped_collector_query
-        SET last_run_at = @last_run_at
+        SET updateDatetime = @updateDatetime
         WHERE id = @id
       `);
-    
-    // Here you would implement the actual query execution logic
-    // For now, we'll just return a success message
     
     res.status(200).json({ 
       message: 'Query executed successfully',
       queryId: parseInt(id),
       executedAt: new Date()
     });
+    */
   } catch (error) {
     console.error('Error executing collector query:', error);
     res.status(500).json({ message: 'Error executing collector query', error: error.message });

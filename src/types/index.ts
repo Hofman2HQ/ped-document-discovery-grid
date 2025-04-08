@@ -1,4 +1,3 @@
-
 export interface Document {
   transactionId: string;
   sessionId?: number;
@@ -55,10 +54,7 @@ export interface PedSourceUrl {
 
 export interface PedCollectorQuery {
   id: number;
-  query_text: string;
-  target_country: string;
-  target_document_type: string;
-  created_at: Date;
-  last_run_at: Date;
-  is_active: boolean;
+  query: string;
+  insertDatetime: string;
+  updateDatetime: string;
 }

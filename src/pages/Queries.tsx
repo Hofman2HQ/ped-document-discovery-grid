@@ -1,9 +1,10 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Play, Plus, Edit, Trash2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { PedCollectorQuery } from '@/types';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   getAllQueries,
   createQuery,
@@ -38,7 +39,6 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
@@ -50,76 +50,80 @@ import {
 } from '@/components/ui/form';
 
 type QueryFormData = {
-  query_text: string;
-  target_country: string;
-  target_document_type: string;
-  is_active: boolean;
+  query: string;
 };
 
 const Queries = () => {
-  const [queries, setQueries] = useState<PedCollectorQuery[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [editingQuery, setEditingQuery] = useState<PedCollectorQuery | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const form = useForm<QueryFormData>({
     defaultValues: {
-      query_text: '',
-      target_country: '',
-      target_document_type: '',
-      is_active: true
+      query: '',
     }
   });
 
-  const fetchQueries = async () => {
-    try {
-      setIsLoading(true);
-      const data = await getAllQueries();
-      setQueries(data);
-    } catch (error) {
-      console.error('Error fetching queries:', error);
+  // Get all queries
+  const { data: queries = [], isLoading } = useQuery({
+    queryKey: ['queries'],
+    queryFn: getAllQueries
+  });
+
+  // Create query mutation
+  const createMutation = useMutation({
+    mutationFn: (data: string) => createQuery(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['queries'] });
+      setSheetOpen(false);
+      toast({
+        title: 'Query Created',
+        description: 'New query has been created successfully',
+      });
+    },
+    onError: (error) => {
+      console.error('Error creating query:', error);
       toast({
         title: 'Error',
-        description: 'Failed to load queries',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchQueries();
-  }, []);
-
-  const handleExecute = async (id: number) => {
-    try {
-      const result = await executeQuery(id);
-      toast({
-        title: 'Query Executed',
-        description: `Query executed successfully at ${new Date(result.executedAt).toLocaleString()}`,
-      });
-      fetchQueries(); // Refresh the queries list to update last_run_at
-    } catch (error) {
-      console.error('Error executing query:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to execute query',
+        description: 'Failed to create query',
         variant: 'destructive'
       });
     }
-  };
+  });
 
-  const handleDelete = async (id: number) => {
-    try {
-      await deleteQuery(id);
+  // Update query mutation
+  const updateMutation = useMutation({
+    mutationFn: ({ id, query }: { id: number; query: string }) => updateQuery(id, query),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['queries'] });
+      setSheetOpen(false);
+      toast({
+        title: 'Query Updated',
+        description: 'Query has been updated successfully',
+      });
+    },
+    onError: (error) => {
+      console.error('Error updating query:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update query',
+        variant: 'destructive'
+      });
+    }
+  });
+
+  // Delete query mutation
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => deleteQuery(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['queries'] });
       toast({
         title: 'Query Deleted',
         description: 'Query has been deleted successfully',
       });
-      fetchQueries();
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error('Error deleting query:', error);
       toast({
         title: 'Error',
@@ -127,15 +131,40 @@ const Queries = () => {
         variant: 'destructive'
       });
     }
+  });
+
+  // Execute query mutation
+  const executeMutation = useMutation({
+    mutationFn: (id: number) => executeQuery(id),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['queries'] });
+      toast({
+        title: 'Query Executed',
+        description: `Query executed successfully at ${new Date(data.executedAt).toLocaleString()}`,
+      });
+    },
+    onError: (error) => {
+      console.error('Error executing query:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to execute query',
+        variant: 'destructive'
+      });
+    }
+  });
+
+  const handleExecute = (id: number) => {
+    executeMutation.mutate(id);
+  };
+
+  const handleDelete = (id: number) => {
+    deleteMutation.mutate(id);
   };
 
   const handleEdit = (query: PedCollectorQuery) => {
     setEditingQuery(query);
     form.reset({
-      query_text: query.query_text,
-      target_country: query.target_country,
-      target_document_type: query.target_document_type,
-      is_active: query.is_active
+      query: query.query,
     });
     setSheetOpen(true);
   };
@@ -143,44 +172,22 @@ const Queries = () => {
   const handleAddNew = () => {
     setEditingQuery(null);
     form.reset({
-      query_text: '',
-      target_country: '',
-      target_document_type: '',
-      is_active: true
+      query: '',
     });
     setSheetOpen(true);
   };
 
-  const onSubmit = async (data: QueryFormData) => {
-    try {
-      if (editingQuery) {
-        // Update existing query
-        await updateQuery(editingQuery.id, data);
-        toast({
-          title: 'Query Updated',
-          description: 'Query has been updated successfully',
-        });
-      } else {
-        // Create new query
-        await createQuery(data);
-        toast({
-          title: 'Query Created',
-          description: 'New query has been created successfully',
-        });
-      }
-      setSheetOpen(false);
-      fetchQueries();
-    } catch (error) {
-      console.error('Error saving query:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to save query',
-        variant: 'destructive'
-      });
+  const onSubmit = (data: QueryFormData) => {
+    if (editingQuery) {
+      // Update existing query
+      updateMutation.mutate({ id: editingQuery.id, query: data.query });
+    } else {
+      // Create new query
+      createMutation.mutate(data.query);
     }
   };
 
-  const formatDate = (dateString: string | Date) => {
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString();
   };
 
@@ -209,7 +216,7 @@ const Queries = () => {
                 >
                   <FormField
                     control={form.control}
-                    name="query_text"
+                    name="query"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Query Text</FormLabel>
@@ -223,62 +230,11 @@ const Queries = () => {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="target_country"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Target Country</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="e.g. USA, Canada, etc."
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="target_document_type"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Document Type</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="e.g. Passport, ID Card, etc."
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="is_active"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                        <FormControl>
-                          <input
-                            type="checkbox"
-                            checked={field.value}
-                            onChange={field.onChange}
-                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Active</FormLabel>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
                   <div className="flex justify-end pt-4">
                     <Button onClick={() => setSheetOpen(false)} variant="outline" className="mr-2">
                       Cancel
                     </Button>
-                    <Button type="submit">
+                    <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
                       {editingQuery ? 'Update' : 'Create'}
                     </Button>
                   </div>
@@ -305,11 +261,8 @@ const Queries = () => {
               <TableRow>
                 <TableHead>ID</TableHead>
                 <TableHead>Query</TableHead>
-                <TableHead>Target Country</TableHead>
-                <TableHead>Document Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Run</TableHead>
                 <TableHead>Created</TableHead>
+                <TableHead>Last Updated</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -318,25 +271,10 @@ const Queries = () => {
                 <TableRow key={query.id}>
                   <TableCell>{query.id}</TableCell>
                   <TableCell className="max-w-md truncate">
-                    {query.query_text}
+                    {query.query}
                   </TableCell>
-                  <TableCell>{query.target_country}</TableCell>
-                  <TableCell>{query.target_document_type}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        query.is_active
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {query.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    {query.last_run_at ? formatDate(query.last_run_at) : 'Never'}
-                  </TableCell>
-                  <TableCell>{formatDate(query.created_at)}</TableCell>
+                  <TableCell>{formatDate(query.insertDatetime)}</TableCell>
+                  <TableCell>{formatDate(query.updateDatetime)}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button
@@ -344,6 +282,7 @@ const Queries = () => {
                         size="sm"
                         onClick={() => handleExecute(query.id)}
                         title="Run Query"
+                        disabled={executeMutation.isPending}
                       >
                         <Play className="h-4 w-4" />
                       </Button>
@@ -379,6 +318,7 @@ const Queries = () => {
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => handleDelete(query.id)}
+                              disabled={deleteMutation.isPending}
                             >
                               Delete
                             </AlertDialogAction>

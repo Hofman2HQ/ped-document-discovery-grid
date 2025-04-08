@@ -10,22 +10,6 @@ export const getAllQueries = async (): Promise<PedCollectorQuery[]> => {
   return response.data;
 };
 
-// Get queries by filter
-export const getQueriesByFilter = async (country?: string, documentType?: string): Promise<PedCollectorQuery[]> => {
-  let url = `${API_URL}/collector-queries/filter?`;
-  
-  if (country) {
-    url += `country=${encodeURIComponent(country)}&`;
-  }
-  
-  if (documentType) {
-    url += `documentType=${encodeURIComponent(documentType)}`;
-  }
-  
-  const response = await axios.get(url);
-  return response.data;
-};
-
 // Get query by ID
 export const getQueryById = async (id: number): Promise<PedCollectorQuery> => {
   const response = await axios.get(`${API_URL}/collector-queries/${id}`);
@@ -33,14 +17,14 @@ export const getQueryById = async (id: number): Promise<PedCollectorQuery> => {
 };
 
 // Create new query
-export const createQuery = async (queryData: Omit<PedCollectorQuery, 'id' | 'created_at' | 'last_run_at'>): Promise<PedCollectorQuery> => {
-  const response = await axios.post(`${API_URL}/collector-queries`, queryData);
+export const createQuery = async (queryText: string): Promise<PedCollectorQuery> => {
+  const response = await axios.post(`${API_URL}/collector-queries`, { query: queryText });
   return response.data;
 };
 
 // Update query
-export const updateQuery = async (id: number, queryData: Partial<PedCollectorQuery>): Promise<PedCollectorQuery> => {
-  const response = await axios.put(`${API_URL}/collector-queries/${id}`, queryData);
+export const updateQuery = async (id: number, queryText: string): Promise<PedCollectorQuery> => {
+  const response = await axios.put(`${API_URL}/collector-queries/${id}`, { query: queryText });
   return response.data;
 };
 
