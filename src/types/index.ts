@@ -1,6 +1,7 @@
 
 export interface Document {
   transactionId: string;
+  sessionId?: number;
   image_url: string;
   page_url: string;
   country: string;
@@ -21,6 +22,8 @@ export interface SearchFilters {
     to: Date | undefined;
   };
   state: string;
+  transactionId: string;
+  sessionId: string;
 }
 
 // Backend interfaces

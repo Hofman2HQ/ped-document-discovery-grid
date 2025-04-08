@@ -5,6 +5,7 @@ import { Document } from '@/types';
 const mockDocuments: Document[] = [
   {
     transactionId: "doc-1",
+    sessionId: 1001,
     image_url: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9",
     page_url: "https://example.com/exposed-document-1",
     country: "United States",
@@ -17,6 +18,7 @@ const mockDocuments: Document[] = [
   },
   {
     transactionId: "doc-2",
+    sessionId: 1002,
     image_url: "https://images.unsplash.com/photo-1575429198097-0414ec08e8cd",
     page_url: "https://example.org/personal-data-leak",
     country: "Canada",
@@ -194,6 +196,8 @@ export const fetchDocuments = async (filters?: {
   dateFrom?: Date;
   dateTo?: Date;
   state?: string;
+  transactionId?: string;
+  sessionId?: string;
 }): Promise<Document[]> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -234,6 +238,20 @@ export const fetchDocuments = async (filters?: {
 
     if (filters.state && filters.state !== 'All') {
       filteredDocs = filteredDocs.filter(doc => doc.state === filters.state);
+    }
+
+    // Add new filters for transaction ID and session ID
+    if (filters.transactionId) {
+      filteredDocs = filteredDocs.filter(doc =>
+        doc.transactionId.toLowerCase().includes(filters.transactionId!.toLowerCase())
+      );
+    }
+
+    if (filters.sessionId) {
+      filteredDocs = filteredDocs.filter(doc =>
+        doc.sessionId !== undefined && 
+        doc.sessionId.toString().includes(filters.sessionId)
+      );
     }
   }
 

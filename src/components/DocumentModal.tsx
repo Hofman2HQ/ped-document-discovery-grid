@@ -12,7 +12,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Calendar, ExternalLink, MapPin, FileText, Flag, Check, X } from 'lucide-react';
+import { Calendar, ExternalLink, MapPin, FileText, Flag, Check, X, Key, Hash } from 'lucide-react';
 
 interface DocumentModalProps {
   document: Document | null;
@@ -73,8 +73,21 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <h3 className="text-sm font-medium text-muted-foreground mb-1">Transaction ID</h3>
-              <p>{document.transactionId}</p>
+              <p className="flex items-center">
+                <Key className="mr-1.5 h-4 w-4 text-primary" />
+                {document.transactionId}
+              </p>
             </div>
+            
+            {document.sessionId && (
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground mb-1">Session ID</h3>
+                <p className="flex items-center">
+                  <Hash className="mr-1.5 h-4 w-4 text-primary" />
+                  {document.sessionId}
+                </p>
+              </div>
+            )}
             
             <div>
               <h3 className="text-sm font-medium text-muted-foreground mb-1">Document Type</h3>

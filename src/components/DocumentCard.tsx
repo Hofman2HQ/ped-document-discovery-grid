@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Document } from '@/types';
-import { ExternalLink, Calendar, MapPin, FileText, Flag, Check, X } from 'lucide-react';
+import { ExternalLink, Calendar, MapPin, FileText, Flag, Check, X, Key } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -46,6 +46,13 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document, onClick }) => {
       </div>
       <CardContent className="p-4">
         <div className="space-y-2">
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Key className="mr-1 h-3.5 w-3.5" />
+            <span className="font-medium truncate" title={document.transactionId}>
+              ID: {document.transactionId}
+            </span>
+          </div>
+          
           <div className="flex items-center text-sm text-muted-foreground">
             <FileText className="mr-1 h-3.5 w-3.5" />
             <span className="font-medium">{document.document_type}</span>

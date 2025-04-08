@@ -34,6 +34,27 @@ exports.getPedDetailById = async (req, res) => {
   }
 };
 
+// Get PED details by transaction ID
+exports.getPedDetailsByTransactionId = async (req, res) => {
+  try {
+    const { transactionId } = req.params;
+    
+    await pool.connect();
+    const result = await pool.request()
+      .input('transactionId', sql.VarChar(50), transactionId)
+      .query('SELECT * FROM ped_details WHERE transaction_id = @transactionId');
+    
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ message: 'No PED details found for this transaction ID' });
+    }
+    
+    res.status(200).json(result.recordset);
+  } catch (error) {
+    console.error('Error fetching PED details by transaction ID:', error);
+    res.status(500).json({ message: 'Error fetching PED details', error: error.message });
+  }
+};
+
 // Create new PED detail
 exports.createPedDetail = async (req, res) => {
   try {

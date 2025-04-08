@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { SearchFilters } from '@/types';
-import { CalendarIcon, Search, X } from 'lucide-react';
+import { CalendarIcon, Search, X, Key, Hash } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { countryHasMultipleStates, getStatesForCountry } from '@/api/documents';
 
@@ -43,11 +43,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
       from: undefined,
       to: undefined
     },
-    state: ''
+    state: '',
+    transactionId: '',
+    sessionId: ''
   });
 
   const [availableStates, setAvailableStates] = useState<string[]>([]);
   const [showStateFilter, setShowStateFilter] = useState(false);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
 
   useEffect(() => {
     if (filters.country && filters.country !== 'all') {
@@ -84,6 +87,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
     setFilters(prev => ({ ...prev, state: value }));
   };
 
+  const handleTransactionIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilters(prev => ({ ...prev, transactionId: e.target.value }));
+  };
+
+  const handleSessionIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilters(prev => ({ ...prev, sessionId: e.target.value }));
+  };
+
   const handleDateChange = (range: { from: Date | undefined; to: Date | undefined }) => {
     setFilters(prev => ({ 
       ...prev, 
@@ -104,7 +115,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
         from: undefined,
         to: undefined
       },
-      state: ''
+      state: '',
+      transactionId: '',
+      sessionId: ''
     });
     setShowStateFilter(false);
     onSearch({
@@ -115,8 +128,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
         from: undefined,
         to: undefined
       },
-      state: ''
+      state: '',
+      transactionId: '',
+      sessionId: ''
     });
+  };
+
+  const toggleAdvancedSearch = () => {
+    setShowAdvancedSearch(!showAdvancedSearch);
   };
 
   return (
@@ -235,6 +254,50 @@ const SearchBar: React.FC<SearchBarProps> = ({
           </Popover>
         </div>
       </div>
+
+      {/* Toggle button for advanced search */}
+      <div className="flex justify-end mb-4">
+        <Button 
+          variant="outline" 
+          onClick={toggleAdvancedSearch}
+          size="sm"
+        >
+          {showAdvancedSearch ? "Hide Advanced" : "Show Advanced"}
+        </Button>
+      </div>
+
+      {/* Advanced search fields - conditionally rendered */}
+      {showAdvancedSearch && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 border-t pt-4">
+          <div className="space-y-2">
+            <Label htmlFor="transactionId">Transaction ID</Label>
+            <div className="relative">
+              <Key className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="transactionId"
+                placeholder="Search by transaction ID..."
+                value={filters.transactionId}
+                onChange={handleTransactionIdChange}
+                className="pl-8"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="sessionId">Session ID</Label>
+            <div className="relative">
+              <Hash className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="sessionId"
+                placeholder="Search by session ID..."
+                value={filters.sessionId}
+                onChange={handleSessionIdChange}
+                className="pl-8"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex justify-end space-x-2 mt-4">
         <Button variant="outline" onClick={handleReset}>

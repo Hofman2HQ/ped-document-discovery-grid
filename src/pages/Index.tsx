@@ -67,7 +67,9 @@ const Index = () => {
         documentType: filters.documentType === 'all' ? '' : filters.documentType,
         dateFrom: filters.dateRange.from,
         dateTo: filters.dateRange.to,
-        state: filters.state === 'all' ? '' : filters.state
+        state: filters.state === 'all' ? '' : filters.state,
+        transactionId: filters.transactionId,
+        sessionId: filters.sessionId
       });
       setFilteredDocuments(filteredDocs);
     } catch (err) {
