@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Play, Plus, Edit, Trash2 } from 'lucide-react';
+import { Play, Plus, Edit, Trash2, LoaderCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { PedCollectorQuery } from '@/types';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -50,6 +50,7 @@ import {
 } from '@/components/ui/form';
 import EmptyState from '@/components/EmptyState';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Progress } from '@/components/ui/progress';
 
 type QueryFormData = {
   query: string;
@@ -58,6 +59,8 @@ type QueryFormData = {
 const Queries = () => {
   const [editingQuery, setEditingQuery] = useState<PedCollectorQuery | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [executingQueryId, setExecutingQueryId] = useState<number | null>(null);
+  const [progressValue, setProgressValue] = useState(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -139,20 +142,54 @@ const Queries = () => {
 
   const executeMutation = useMutation({
     mutationFn: (id: number) => executeQuery(id),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['queries'] });
-      toast({
-        title: 'Query Executed',
-        description: `Query executed successfully at ${new Date(data.executedAt).toLocaleString()}`,
-      });
+    onMutate: (id) => {
+      setExecutingQueryId(id);
+      setProgressValue(0);
+      // Start progress animation
+      const interval = setInterval(() => {
+        setProgressValue(prevValue => {
+          const newValue = prevValue + 5;
+          if (newValue >= 95) {
+            clearInterval(interval);
+            return 95; // Keep at 95% until completion
+          }
+          return newValue;
+        });
+      }, 100);
+      
+      return { interval };
     },
-    onError: (error) => {
+    onSuccess: (data) => {
+      setProgressValue(100);
+      setTimeout(() => {
+        setProgressValue(0);
+        setExecutingQueryId(null);
+        queryClient.invalidateQueries({ queryKey: ['queries'] });
+        toast({
+          title: 'Query Executed',
+          description: `Query executed successfully at ${new Date(data.executedAt).toLocaleString()}`,
+        });
+      }, 500); // Show 100% complete for a brief moment
+    },
+    onError: (error, variables, context) => {
       console.error('Error executing query:', error);
+      // Clear the interval if it exists
+      if (context && 'interval' in context) {
+        clearInterval(context.interval as NodeJS.Timeout);
+      }
+      setProgressValue(0);
+      setExecutingQueryId(null);
       toast({
         title: 'Error',
         description: 'Failed to execute query',
         variant: 'destructive'
       });
+    },
+    onSettled: (data, error, variables, context) => {
+      // Clear the interval if it exists
+      if (context && 'interval' in context) {
+        clearInterval(context.interval as NodeJS.Timeout);
+      }
     }
   });
 
@@ -308,20 +345,36 @@ const Queries = () => {
                   <TableCell className="text-black">{formatDate(query.updateDatetime)}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleExecute(query.id)}
-                        title="Run Query"
-                        disabled={executeMutation.isPending}
-                      >
-                        <Play className="h-4 w-4" />
-                      </Button>
+                      {executingQueryId === query.id ? (
+                        <div className="w-full space-y-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled
+                            className="w-8 h-8 p-0 flex items-center justify-center"
+                          >
+                            <LoaderCircle className="h-4 w-4 animate-spin" />
+                          </Button>
+                          <Progress value={progressValue} className="h-1 w-full" />
+                        </div>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleExecute(query.id)}
+                          title="Run Query"
+                          disabled={executeMutation.isPending}
+                          className="transition-all hover:bg-primary hover:text-white"
+                        >
+                          <Play className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleEdit(query)}
                         title="Edit Query"
+                        className="transition-all hover:bg-primary hover:text-white"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -331,6 +384,7 @@ const Queries = () => {
                             variant="outline"
                             size="sm"
                             title="Delete Query"
+                            className="transition-all hover:bg-destructive hover:text-white"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
