@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Execution } from '@/types';
 
 const Executions = () => {
   const { toast } = useToast();
@@ -83,7 +84,7 @@ const Executions = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {executions.map((execution) => (
+                {executions.map((execution: Execution) => (
                   <TableRow key={execution.id}>
                     <TableCell className="font-medium">{execution.id}</TableCell>
                     <TableCell className="max-w-[200px] truncate">
